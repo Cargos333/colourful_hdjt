@@ -4199,6 +4199,94 @@ def admin_expense_delete(expense_id):
 
     return redirect(url_for('admin_expenses'))
 
+# ===== Route de diagnostic (à supprimer après débogage) =====
+@app.route('/diagnostic/admin-check')
+def diagnostic_admin_check():
+    """Route de diagnostic pour vérifier l'état du compte admin"""
+    try:
+        admin_email = 'admin@colourful.com'
+        admin = User.query.filter_by(email=admin_email).first()
+        
+        if admin:
+            test_password = 'Admin@123456'
+            expected_hash = hash_password(test_password)
+            
+            result = {
+                'status': 'Admin trouvé',
+                'email': admin.email,
+                'username': admin.username,
+                'nom': f"{admin.nom} {admin.prenom}",
+                'is_admin': admin.is_admin,
+                'password_hash_preview': admin.password_hash[:40] + '...',
+                'expected_hash_preview': expected_hash[:40] + '...',
+                'password_match': admin.password_hash == expected_hash,
+                'created_at': str(admin.created_at)
+            }
+        else:
+            result = {
+                'status': 'Admin NON trouvé',
+                'message': f"Aucun utilisateur avec l'email {admin_email}",
+                'total_users': User.query.count(),
+                'total_admins': User.query.filter_by(is_admin=True).count()
+            }
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            'status': 'Erreur',
+            'error': str(e),
+            'type': type(e).__name__
+        })
+
+@app.route('/diagnostic/create-admin-force')
+def diagnostic_create_admin_force():
+    """Route de diagnostic pour forcer la création du compte admin"""
+    try:
+        admin_email = 'admin@colourful.com'
+        admin_password = 'Admin@123456'
+        
+        # Vérifier si l'admin existe déjà
+        existing_admin = User.query.filter_by(email=admin_email).first()
+        
+        if existing_admin:
+            # Mettre à jour l'admin existant
+            existing_admin.password_hash = hash_password(admin_password)
+            existing_admin.is_admin = True
+            existing_admin.username = 'admin'
+            db.session.commit()
+            
+            return jsonify({
+                'status': 'Admin mis à jour',
+                'email': admin_email,
+                'message': 'Le compte admin existant a été mis à jour avec le bon mot de passe et les droits admin'
+            })
+        else:
+            # Créer un nouvel admin
+            new_admin = User(
+                email=admin_email,
+                username='admin',
+                password_hash=hash_password(admin_password),
+                nom='Admin',
+                prenom='Principal',
+                telephone='',
+                is_admin=True
+            )
+            db.session.add(new_admin)
+            db.session.commit()
+            
+            return jsonify({
+                'status': 'Admin créé',
+                'email': admin_email,
+                'message': 'Nouveau compte admin créé avec succès'
+            })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'status': 'Erreur',
+            'error': str(e),
+            'type': type(e).__name__
+        })
+
 if __name__ == '__main__':
     # Créer le dossier uploads s'il n'existe pas
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

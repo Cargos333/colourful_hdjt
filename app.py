@@ -14,7 +14,7 @@ import time
 
 app = Flask(__name__)
 CORS(app)  # Activer CORS pour toutes les routes
-app.secret_key = 'votre_cle_secrete_ici_changez_la'
+app.secret_key = 'fede9da25c0bbb833ba34d53498250b1'
 
 # Rate limiting pour les tentatives d'authentification échouées
 failed_auth_attempts = defaultdict(lambda: {'count': 0, 'first_attempt': 0, 'last_logged': 0})
@@ -34,7 +34,14 @@ def cleanup_rate_limit_data():
 # Configuration de la base de données
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'colourful_hdjt.db')
+
+# Utiliser DATABASE_URL si disponible (pour production), sinon SQLite pour développement
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'colourful_hdjt.db')
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialiser SQLAlchemy

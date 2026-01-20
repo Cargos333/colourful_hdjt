@@ -66,10 +66,12 @@ Si vous avez des clés API ou secrets :
 4. Votre site sera disponible à : `https://colourful-hdjt.onrender.com`
 
 ### 7. Configuration de la base de données
-Si vous voulez utiliser PostgreSQL (recommandé pour la production) :
+✅ **Configuration automatique** : L'application utilise automatiquement PostgreSQL via la variable `DATABASE_URL` quand elle est définie, et revient à SQLite pour le développement local.
+
+Pour utiliser PostgreSQL :
 1. Dans Render, créez une **PostgreSQL Database**
-2. Copiez l'URL de connexion interne
-3. Modifiez `app.py` pour utiliser cette URL au lieu de SQLite
+2. L'URL de connexion sera automatiquement disponible via `DATABASE_URL`
+3. L'application détectera et utilisera PostgreSQL automatiquement
 
 ### 8. Vérifications post-déploiement
 - ✅ Testez l'accès au site

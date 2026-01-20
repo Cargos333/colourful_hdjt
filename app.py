@@ -2446,7 +2446,7 @@ def admin_login():
 
         # Vérifier les informations dans la base de données
         user = get_user_by_email_or_username(email)
-        if user and user.password_hash == hash_password(password):
+        if user and user.is_admin and user.password_hash == hash_password(password):
             session['user_email'] = user.email
             session['user_nom'] = user.nom
             session['user_prenom'] = user.prenom
@@ -2456,7 +2456,10 @@ def admin_login():
             flash('Connexion administrateur réussie !', 'success')
             return redirect(url_for('admin_dashboard'))
         else:
-            flash('Email ou mot de passe incorrect', 'error')
+            if user and not user.is_admin:
+                flash('Cet utilisateur n\'a pas les droits administrateur', 'error')
+            else:
+                flash('Email ou mot de passe incorrect', 'error')
 
     return render_template('admin/admin_login.html')
 

@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Conditions d'utilisation - Colourful HDJT{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 text-white">
+        <div class="container mx-auto px-4 py-16">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-white to-pink-100 bg-clip-text text-transparent">
+                    Conditions d'utilisation
+                </h1>
+                <p class="text-xl text-pink-100 max-w-2xl mx-auto">
+                    Veuillez lire attentivement ces conditions avant d'utiliser notre service.
+                </p>
+                <p class="text-sm text-pink-200 mt-4">
+                    Dernière mise à jour : {{ current_year }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-pink-100">
+
+                <div class="prose prose-lg max-w-none text-gray-700">
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">1. Acceptation des conditions</h2>
+                    <p class="mb-6">
+                        En accédant et en utilisant le site web Colourful HDJT, vous acceptez et vous engagez à respecter les présentes conditions d'utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre service.
+                    </p>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">2. Description du service</h2>
+                    <p class="mb-6">
+                        Colourful HDJT est une plateforme de commerce électronique spécialisée dans la vente de produits cosmétiques et de contenants personnalisables. Nous proposons :
+                    </p>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li>Vente de produits cosmétiques haut de gamme</li>
+                        <li>Service de personnalisation de contenants</li>
+                        <li>Livraison à domicile dans tout Mayotte</li>
+                        <li>Support client personnalisé</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">3. Conditions d'utilisation du compte</h2>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">3.1 Création de compte</h3>
+                    <p class="mb-4">
+                        Pour utiliser certains services, vous devez créer un compte en fournissant des informations exactes et complètes. Vous êtes responsable de la confidentialité de votre mot de passe.
+                    </p>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">3.2 Utilisation responsable</h3>
+                    <p class="mb-4">
+                        Vous vous engagez à utiliser le service de manière responsable et à ne pas :
+                    </p>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li>Violer les droits d'autrui</li>
+                        <li>Publier du contenu illégal ou offensant</li>
+                        <li>Tenter de compromettre la sécurité du site</li>
+                        <li>Utiliser le service à des fins commerciales non autorisées</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">4. Commandes et paiements</h2>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">4.1 Processus de commande</h3>
+                    <p class="mb-4">
+                        Toutes les commandes sont soumises à acceptation et disponibilité. Nous nous réservons le droit de refuser une commande pour quelque raison que ce soit.
+                    </p>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">4.2 Prix et paiement</h3>
+                    <p class="mb-4">
+                        Les prix sont indiqués en Francs Comoriens (KMF) et incluent la TVA applicable. Le paiement s'effectue à la livraison en espèces ou par mobile money.
+                    </p>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">4.3 Livraison</h3>
+                    <p class="mb-4">
+                        Nous livrons dans tout Mayotte. Les délais de livraison sont indicatifs et peuvent varier selon la localisation.
+                    </p>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">5. Droit de rétractation</h2>
+                    <p class="mb-6">
+                        Conformément à la législation en vigueur, vous disposez d'un délai de 14 jours à compter de la réception de votre commande pour exercer votre droit de rétractation. Les produits doivent être retournés dans leur état d'origine.
+                    </p>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">6. Propriété intellectuelle</h2>
+                    <p class="mb-6">
+                        Tout le contenu du site (textes, images, logos, etc.) est protégé par le droit d'auteur. Toute reproduction ou utilisation sans autorisation préalable est interdite.
+                    </p>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">7. Responsabilité</h2>
+                    <p class="mb-6">
+                        Colourful HDJT s'efforce de fournir un service de qualité, mais ne peut être tenu responsable des dommages indirects ou des pertes de données. Notre responsabilité est limitée au montant de la commande.
+                    </p>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">8. Modification des conditions</h2>
+                    <p class="mb-6">
+                        Nous nous réservons le droit de modifier ces conditions à tout moment. Les modifications prendront effet immédiatement après publication sur le site.
+                    </p>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">9. Loi applicable</h2>
+                    <p class="mb-6">
+                        Ces conditions sont régies par le droit comorien. Tout litige sera soumis à la compétence des tribunaux de Moroni.
+                    </p>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">10. Contact</h2>
+                    <p class="mb-6">
+                        Pour toute question concernant ces conditions, contactez-nous :
+                    </p>
+                    <div class="bg-pink-50 p-4 rounded-xl border border-pink-200">
+                        <p class="text-gray-800"><strong>Email :</strong> contact@colourful.ma</p>
+                        <p class="text-gray-800"><strong>Téléphone :</strong> +269 4690041</p>
+                        <p class="text-gray-800"><strong>Adresse :</strong> Moroni, Ambassadeur</p>
+                    </div>
+
+                </div>
+
+                <div class="mt-12 text-center">
+                    <a href="{{ url_for('register') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+                        <i class="fas fa-user-plus mr-2"></i>
+                        Créer un compte
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

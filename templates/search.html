@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Résultats de recherche - Colourful HDJT{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-title">Résultats de recherche</h1>
+        <p class="page-subtitle">
+            {% if produits %}
+                {{ produits|length }} résultat{{ 's' if produits|length > 1 else '' }} pour "<strong>{{ query }}</strong>"
+            {% else %}
+                Aucun résultat pour "<strong>{{ query }}</strong>"
+            {% endif %}
+        </p>
+        <div class="search-actions">
+            <a href="{{ url_for('produits') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour aux produits
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Résultats de recherche -->
+<section class="products-section">
+    <div class="container">
+        {% if produits %}
+        <div class="products-grid">
+            {% for produit in produits %}
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="{{ url_for('static', filename='images/' + produit.image) }}" alt="{{ produit.nom }}">
+                    {% if produit.personnalisable %}
+                    <div class="product-badge personnalisable">
+                        <i class="fas fa-paint-brush"></i> Personnalisable
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="product-info">
+                    <h3 class="product-title">
+                        <a href="{{ url_for('produit_detail', produit_id=produit.id) }}">{{ produit.nom }}</a>
+                    </h3>
+                    <p class="product-description">{{ produit.description|truncate(100) }}</p>
+                    <div class="product-footer">
+                        <span class="product-price">{{ produit.prix|int }} KMF</span>
+                        <a href="{{ url_for('produit_detail', produit_id=produit.id) }}" class="btn-quick-view">
+                            <i class="fas fa-eye"></i>
+                            <span>Voir détails</span>
+                        </a>
+                    </div>
+
+                    <div class="product-price">
+                        {% if produit.prix_promo %}
+                        <span class="price-old">{{ produit.prix|int }} KMF</span>
+                        <span class="price-new">{{ produit.prix_promo|int }} KMF</span>
+                        {% else %}
+                        <span class="price">{{ produit.prix|int }} KMF</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="product-contenant">
+                        <i class="fas fa-box"></i>
+                        {% for key, contenant in contenants.items() %}
+                            {% if key == produit.contenant %}
+                                {{ contenant.nom }}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Aucun résultat -->
+        <div class="no-results">
+            <div class="no-results-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3>Aucun produit trouvé</h3>
+            <p>Essayez avec des mots-clés différents ou parcourez tous nos produits.</p>
+            <div class="no-results-actions">
+                <a href="{{ url_for('produits') }}" class="btn btn-primary">
+                    <i class="fas fa-th"></i> Voir tous les produits
+                </a>
+                <a href="{{ url_for('creer_contenant') }}" class="btn btn-secondary">
+                    <i class="fas fa-plus"></i> Créer mon contenant
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Pagination pour les résultats de recherche -->
+{% if total_pages > 1 %}
+<section class="pagination-section">
+    <div class="container">
+        <div class="pagination-info">
+            <p>Affichage de {{ ((page - 1) * per_page) + 1 }} à {{ (page * per_page if page * per_page < total_produits else total_produits) }} sur {{ total_produits }} résultats pour "{{ query }}"</p>
+        </div>
+        <div class="pagination">
+            {% if page > 1 %}
+                <a href="{{ url_for('search', q=query, page=1) }}" class="pagination-btn pagination-first" title="Première page">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="{{ url_for('search', q=query, page=page-1) }}" class="pagination-btn pagination-prev" title="Page précédente">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            {% endif %}
+
+            {% set start_page = (1 if page - 2 < 1 else page - 2) %}
+            {% set end_page = (total_pages if page + 2 > total_pages else page + 2) %}
+
+            {% if start_page > 1 %}
+                <span class="pagination-dots">...</span>
+            {% endif %}
+
+            {% for page_num in range(start_page, end_page + 1) %}
+                {% if page_num == page %}
+                    <span class="pagination-btn pagination-current">{{ page_num }}</span>
+                {% else %}
+                    <a href="{{ url_for('search', q=query, page=page_num) }}" class="pagination-btn">{{ page_num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if end_page < total_pages %}
+                <span class="pagination-dots">...</span>
+            {% endif %}
+
+            {% if page < total_pages %}
+                <a href="{{ url_for('search', q=query, page=page+1) }}" class="pagination-btn pagination-next" title="Page suivante">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="{{ url_for('search', q=query, page=total_pages) }}" class="pagination-btn pagination-last" title="Dernière page">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<style>
+.search-actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.no-results {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+}
+
+.no-results-icon {
+    font-size: 4rem;
+    color: var(--gray);
+    margin-bottom: 1rem;
+}
+
+.no-results h3 {
+    font-size: 1.5rem;
+    color: var(--dark-color);
+    margin-bottom: 1rem;
+}
+
+.no-results p {
+    color: var(--gray);
+    margin-bottom: 2rem;
+}
+
+.no-results-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .search-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .no-results-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block title %}Nos Produits - Colourful HDJT{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header page-header-produits">
+    <div class="container">
+        <div class="page-header-content">
+            <div class="page-header-icon">
+                <i class="fas fa-boxes"></i>
+            </div>
+            <h1 class="page-title">Nos Produits</h1>
+            <p class="page-subtitle">Découvrez notre collection de produits de beauté dans différents contenants</p>
+        </div>
+    </div>
+</section>
+
+<!-- Filtres et Tri -->
+<section class="filters-section">
+    <div class="container">
+        <!-- Bouton mobile pour afficher les filtres -->
+        <button id="mobile-filter-toggle" class="mobile-filter-btn">
+            <i class="fas fa-filter"></i>
+            <span>Filtres & Tri</span>
+            <i class="fas fa-chevron-down"></i>
+        </button>
+
+        <div class="filters-container" id="filters-container">
+            <div class="filters-wrapper">
+                <div class="filter-group">
+                    <label for="contenant-filter">
+                        <i class="fas fa-box"></i>
+                        Filtrer par contenant
+                    </label>
+                    <select id="contenant-filter" class="filter-select">
+                        <option value="">Tous les contenants</option>
+                        {% for key, contenant in contenants.items() %}
+                        <option value="{{ key }}" {% if request.args.get('contenant') == key %}selected{% endif %}>
+                            {{ contenant.nom }} - {{ contenant.prix }} KMF
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="sort-filter">
+                        <i class="fas fa-sort"></i>
+                        Trier par
+                    </label>
+                    <select id="sort-filter" class="filter-select">
+                        <option value="nom">Nom (A-Z)</option>
+                        <option value="prix-asc">Prix croissant</option>
+                        <option value="prix-desc">Prix décroissant</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Bouton pour appliquer les filtres sur mobile -->
+            <div class="filter-actions">
+                <button id="apply-filters-btn" class="btn-apply-filters">
+                    <i class="fas fa-check"></i>
+                    Appliquer
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Produits -->
+<section class="products-section">
+    <div class="container">
+        {% if produits %}
+        <div class="products-header">
+            <p class="products-count">{{ produits|length }} produit{{ 's' if produits|length > 1 else '' }} trouvé{{ 's' if produits|length > 1 else '' }}</p>
+        </div>
+
+        <div class="products-grid">
+            {% for produit in produits %}
+            <div class="product-card" 
+                 data-contenant="{{ produit.contenant }}" 
+                 data-prix="{{ produit.prix }}"
+                 data-product-id="{{ produit.id }}"
+                 data-product-nom="{{ produit.nom }}"
+                 data-product-prix="{{ produit.prix }}"
+                 data-product-image="{{ produit.image }}"
+                 data-product-contenant="{{ produit.contenant }}">
+                <div class="product-image">
+                    <img src="{{ produit.image }}" alt="{{ produit.nom }}">
+                    {% if produit.contenant and produit.contenant in contenants %}
+                    <div class="product-badge">
+                        <i class="fas fa-{{ 'box' if produit.contenant == 'carton' else ('shopping-bag' if produit.contenant == 'sac_plastique' else 'cup-straw') }}"></i>
+                        {{ contenants[produit.contenant].nom }}
+                    </div>
+                    {% elif produit.type == 'container' %}
+                    <div class="product-badge badge-custom">
+                        <i class="fas fa-magic"></i>
+                        Personnalisable
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">{{ produit.nom }}</h3>
+                    <p class="product-description">{{ produit.description }}</p>
+                    <div class="product-footer">
+                        <span class="product-price">{{ produit.prix|int }} KMF</span>
+                        <button class="btn-quick-view" onclick="voirProduit('{{ produit.id }}')">
+                            <i class="fas fa-eye"></i> Voir détails
+                        </button>
+                        <button class="btn btn-small add-to-cart">
+                            <i class="fas fa-cart-plus"></i> Ajouter
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-products">
+            <div class="no-products-icon">
+                <i class="fas fa-box-open"></i>
+            </div>
+            <h3>Aucun produit trouvé</h3>
+            <p>Essayez de modifier vos filtres ou <a href="{{ url_for('produits') }}">voir tous les produits</a></p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<section class="pagination-section">
+    <div class="container">
+        <div class="pagination-info">
+            <p>Affichage de {{ ((page - 1) * per_page) + 1 }} à {{ (page * per_page if page * per_page < total_produits else total_produits) }} sur {{ total_produits }} produits</p>
+        </div>
+        <div class="pagination">
+            {% if page > 1 %}
+                <a href="{{ url_for('produits', page=1, contenant=contenant_filtre) }}" class="pagination-btn pagination-first" title="Première page">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="{{ url_for('produits', page=page-1, contenant=contenant_filtre) }}" class="pagination-btn pagination-prev" title="Page précédente">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            {% endif %}
+
+            {% set start_page = (1 if page - 2 < 1 else page - 2) %}
+            {% set end_page = (total_pages if page + 2 > total_pages else page + 2) %}
+
+            {% if start_page > 1 %}
+                <span class="pagination-dots">...</span>
+            {% endif %}
+
+            {% for page_num in range(start_page, end_page + 1) %}
+                {% if page_num == page %}
+                    <span class="pagination-btn pagination-current">{{ page_num }}</span>
+                {% else %}
+                    <a href="{{ url_for('produits', page=page_num, contenant=contenant_filtre) }}" class="pagination-btn">{{ page_num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if end_page < total_pages %}
+                <span class="pagination-dots">...</span>
+            {% endif %}
+
+            {% if page < total_pages %}
+                <a href="{{ url_for('produits', page=page+1, contenant=contenant_filtre) }}" class="pagination-btn pagination-next" title="Page suivante">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="{{ url_for('produits', page=total_pages, contenant=contenant_filtre) }}" class="pagination-btn pagination-last" title="Dernière page">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Modal pour aperçu rapide -->
+<div id="quick-view-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <div id="modal-product-content">
+            <!-- Le contenu sera chargé dynamiquement -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Toggle filtres sur mobile
+const mobileFilterToggle = document.getElementById('mobile-filter-toggle');
+const filtersContainer = document.getElementById('filters-container');
+const applyFiltersBtn = document.getElementById('apply-filters-btn');
+
+if (mobileFilterToggle) {
+    mobileFilterToggle.addEventListener('click', function() {
+        filtersContainer.classList.toggle('show');
+        const icon = this.querySelector('.fa-chevron-down');
+        if (icon) {
+            icon.classList.toggle('rotate');
+        }
+    });
+}
+
+if (applyFiltersBtn) {
+    applyFiltersBtn.addEventListener('click', function() {
+        filtersContainer.classList.remove('show');
+        const icon = mobileFilterToggle.querySelector('.fa-chevron-down');
+        if (icon) {
+            icon.classList.remove('rotate');
+        }
+    });
+}
+
+// Gestion des filtres
+document.getElementById('contenant-filter').addEventListener('change', function() {
+    const contenant = this.value;
+    const url = new URL(window.location);
+    if (contenant) {
+        url.searchParams.set('contenant', contenant);
+    } else {
+        url.searchParams.delete('contenant');
+    }
+    
+    // Sur desktop, recharger immédiatement, sur mobile attendre le clic sur "Appliquer"
+    if (window.innerWidth > 768) {
+        window.location.href = url.toString();
+    }
+});
+
+// Tri des produits
+document.getElementById('sort-filter').addEventListener('change', function() {
+    const sortBy = this.value;
+    const products = Array.from(document.querySelectorAll('.product-card'));
+    const container = document.querySelector('.products-grid');
+
+    products.sort((a, b) => {
+        if (sortBy === 'nom') {
+            return a.querySelector('.product-title').textContent.localeCompare(b.querySelector('.product-title').textContent);
+        } else if (sortBy === 'prix-asc') {
+            return parseInt(a.dataset.prix) - parseInt(b.dataset.prix);
+        } else if (sortBy === 'prix-desc') {
+            return parseInt(b.dataset.prix) - parseInt(a.dataset.prix);
+        }
+        return 0;
+    });
+
+    products.forEach(product => container.appendChild(product));
+});
+
+// Gestion des boutons "Ajouter au panier"
+document.addEventListener('DOMContentLoaded', function() {
+    const addToCartButtons = document.querySelectorAll('.add-to-cart');
+    
+    addToCartButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const productCard = this.closest('.product-card');
+            let produitId = productCard.dataset.productId;
+            
+            // Si l'ID n'est pas défini, générer un ID temporaire
+            if (!produitId || produitId === 'undefined' || produitId === 'null') {
+                produitId = 'temp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                console.log('ID produit non défini, génération d\'un ID temporaire:', produitId);
+            }
+            
+            // Garder l'ID tel quel (peut être "product_1" ou un nombre)
+            const nom = productCard.dataset.productNom;
+            const prix = parseFloat(productCard.dataset.productPrix);
+            const image = productCard.dataset.productImage;
+            const contenant = productCard.dataset.productContenant;
+            
+            console.log('Ajout au panier:', { produitId, nom, prix, image, contenant });
+            
+            ajouterAuPanier(produitId, nom, prix, image, contenant);
+            
+            // Animation du bouton
+            const originalHTML = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-check"></i> Ajouté !';
+            this.style.backgroundColor = '#10b981';
+            
+            setTimeout(() => {
+                this.innerHTML = originalHTML;
+                this.style.backgroundColor = '';
+            }, 1500);
+        });
+    });
+});
+
+// Modal d'aperçu rapide
+function voirProduit(produitId) {
+    // Pour l'instant, rediriger vers la page de détail
+    window.location.href = `/produit/${produitId}`;
+}
+
+// Gestion du modal
+const modal = document.getElementById('quick-view-modal');
+const closeBtn = document.querySelector('.close-modal');
+
+if (closeBtn) {
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    }
+}
+
+if (modal) {
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+}
+</script>
+{% endblock %}

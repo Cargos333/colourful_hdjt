@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil - Colourful HDJT{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-background">
+        <div class="hero-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-text">✨ Nouveau sur Colourful HDJT</span>
+            </div>
+            <h1 class="hero-title">
+                <span class="title-main">Découvrez nos</span>
+                <span class="title-accent">Collections de Beauté</span>
+            </h1>
+            <p class="hero-subtitle">
+                Des produits de beauté de qualité dans des contenants pratiques à prix fixe.
+                <br>Composez votre parfaite routine beauté personnalisée.
+            </p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number">{{ total_produits }}+</div>
+                    <div class="stat-label">Produits</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">{{ total_contenants }}</div>
+                    <div class="stat-label">Contenants</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">24h</div>
+                    <div class="stat-label">Livraison</div>
+                </div>
+            </div>
+            <div class="hero-buttons">
+                <a href="{{ url_for('produits') }}" class="btn btn-primary btn-glow">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Explorer nos produits</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                <a href="#contenants" class="btn btn-secondary btn-outline">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Découvrir les contenants</span>
+                </a>
+            </div>
+            <div class="hero-scroll">
+                <div class="scroll-text">Faites défiler pour découvrir</div>
+                <div class="scroll-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Contenants -->
+<section id="contenants" class="contenants-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Nos Types de Contenants</h2>
+            <p class="section-subtitle">Choisissez le contenant qui vous convient, chacun à un prix fixe et transparent</p>
+        </div>
+
+        <div class="contenants-grid">
+            <div class="contenant-card card-hover">
+                <div class="contenant-header">
+                    <div class="contenant-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="contenant-popular">
+                        <span class="popular-badge">Plus populaire</span>
+                    </div>
+                </div>
+                <div class="contenant-content">
+                    <h3>Carton Premium</h3>
+                </div>
+                <div class="contenant-footer">
+                    <a href="{{ url_for('produits') }}?contenant=carton" class="btn btn-outline btn-full">
+                        <span>Voir les produits</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="contenant-card card-hover">
+                <div class="contenant-header">
+                    <div class="contenant-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                </div>
+                <div class="contenant-content">
+                    <span class="popular-badge">Plus personnalisable</span>
+                    <h3>Sac Plastique Transparent</h3>
+                </div>
+                <div class="contenant-footer">
+                    <a href="{{ url_for('produits') }}?contenant=sac_plastique" class="btn btn-outline btn-full">
+                        <span>Voir les produits</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="contenant-card card-hover">
+                <div class="contenant-header">
+                    <div class="contenant-icon">
+                        <i class="fas fa-cup-straw"></i>
+                    </div>
+                    <div class="contenant-offer">
+                        <span class="offer-badge">Économique</span>
+                    </div>
+                </div>
+                <div class="contenant-content">
+                    <h3>Goblet Transparent</h3>
+                </div>
+                <div class="contenant-footer">
+                    <a href="{{ url_for('produits') }}?contenant=goblet" class="btn btn-outline btn-full">
+                        <span>Voir les produits</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Produits en Vedette -->
+<section class="featured-products">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Produits en Vedette</h2>
+            <p class="section-subtitle">Découvrez notre sélection de produits populaires et tendances</p>
+        </div>
+
+        <div class="products-grid">
+            {% for produit in produits[:6] %}
+            <div class="product-card card-hover">
+                <div class="product-image">
+                    <img src="{{ produit.image if produit.image and (produit.image.startswith(('http://', 'https://', 'data:')) or produit.image.endswith(('.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'))) else url_for('static', filename='images/placeholder.svg') }}" alt="{{ produit.nom }}">
+                    {% if produit.personnalisable %}
+                    <div class="product-badge">
+                        <i class="fas fa-magic"></i>
+                        Personnalisable
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">{{ produit.nom }}</h3>
+                    <p class="product-description">{{ produit.description }}</p>
+                    <div class="product-footer">
+                        <span class="product-price">{{ produit.prix|int }} KMF</span>
+                        <a href="{{ url_for('produit_detail', produit_id=produit.id) }}" class="btn-quick-view">
+                            <i class="fas fa-eye"></i>
+                            <span>Voir détails</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center" style="margin-top: 3rem;">
+            <a href="{{ url_for('produits') }}" class="btn btn-primary btn-large btn-glow">
+                <span>Voir tous les produits</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Section Avantages -->
+<section class="features-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Pourquoi nous choisir ?</h2>
+            <p class="section-subtitle">Découvrez ce qui fait la différence Colourful HDJT</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card card-hover">
+                <div class="feature-icon">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <h3>Prix Fixe & Transparent</h3>
+                <p>Chaque contenant a un prix fixe, simple et transparent. Plus de surprises à la caisse !</p>
+            </div>
+
+            <div class="feature-card card-hover">
+                <div class="feature-icon">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <h3>Contenants Pratiques</h3>
+                <p>Vos produits bien organisés dans des contenants de qualité adaptés à vos besoins.</p>
+            </div>
+
+            <div class="feature-card card-hover">
+                <div class="feature-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h3>Livraison Express</h3>
+                <p>Recevez vos produits rapidement à domicile. Service de livraison fiable et rapide.</p>
+            </div>
+
+            <div class="feature-card card-hover">
+                <div class="feature-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <h3>Qualité Premium</h3>
+                <p>Seulement les meilleurs produits de beauté sélectionnés pour leur qualité exceptionnelle.</p>
+            </div>
+
+            <div class="feature-card card-hover">
+                <div class="feature-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <h3>Personnalisation</h3>
+                <p>Composez votre parfaite routine beauté en choisissant les produits qui vous conviennent.</p>
+            </div>
+
+            <div class="feature-card card-hover">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Garantie Satisfait</h3>
+                <p>Votre satisfaction est notre priorité. Service client disponible pour vous accompagner.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Témoignages -->
+<section class="testimonials-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Ce que disent nos clientes</h2>
+            <p class="section-subtitle">Découvrez les expériences de nos clientes satisfaites</p>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial-card card-hover">
+                <div class="testimonial-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-text">"Service exceptionnel ! Mes produits sont arrivés rapidement et les contenants sont parfaits pour organiser ma salle de bain."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="author-info">
+                        <h4>Sarah M.</h4>
+                        <span>Cliente fidèle</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card card-hover">
+                <div class="testimonial-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-text">"J'adore la qualité des contenants et le prix fixe est vraiment pratique. Plus besoin de se soucier des coûts supplémentaires."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="author-info">
+                        <h4>Marie L.</h4>
+                        <span>Nouvelle cliente</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card card-hover">
+                <div class="testimonial-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-text">"Les produits sont de grande qualité et l'organisation de mes cosmétiques n'a jamais été aussi facile. Merci Colourful HDJT !"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="author-info">
+                        <h4>Emma D.</h4>
+                        <span>Cliente régulière</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

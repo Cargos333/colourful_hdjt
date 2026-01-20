@@ -1,0 +1,650 @@
+{% extends 'base.html' %}
+
+{% block title %}Finaliser la commande - Colourful HDJT{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 text-white">
+        <div class="container mx-auto px-4 py-16">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="mb-8 md:mb-0">
+                        <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-white to-pink-100 bg-clip-text text-transparent">
+                            Finaliser la commande 🛒
+                        </h1>
+                        <p class="text-xl text-pink-100 max-w-2xl">
+                            Vérifiez vos articles et choisissez votre méthode de paiement.
+                        </p>
+                    </div>
+                    <div class="relative">
+                        <div class="w-32 h-32 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-4 border-white/30">
+                            <span class="text-6xl">🛒</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-6xl mx-auto">
+            <!-- Menu mobile -->
+            <div class="lg:hidden mb-6">
+                <button id="mobile-menu-btn" class="w-full bg-white rounded-2xl shadow-lg p-4 flex items-center justify-between hover:shadow-xl transition-all duration-200">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                            <span class="text-xl">🛒</span>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-gray-800">Navigation rapide</div>
+                            <div class="text-sm text-gray-500">Accéder aux sections</div>
+                        </div>
+                    </div>
+                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                        <span class="text-white text-lg" id="menu-icon">☰</span>
+                    </div>
+                </button>
+
+                <!-- Menu mobile déroulant -->
+                <div id="mobile-menu" class="hidden bg-white rounded-2xl shadow-xl mt-2 overflow-hidden">
+                    <a href="#order-summary" class="block px-6 py-4 hover:bg-gray-50 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">📋</span>
+                            <div>
+                                <div class="font-semibold text-gray-800">Résumé</div>
+                                <div class="text-sm text-gray-500">Voir le détail de la commande</div>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#payment-methods" class="block px-6 py-4 hover:bg-gray-50 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">💳</span>
+                            <div>
+                                <div class="font-semibold text-gray-800">Paiement</div>
+                                <div class="text-sm text-gray-500">Choisir la méthode</div>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#order-confirmation" class="block px-6 py-4 hover:bg-gray-50">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">✅</span>
+                            <div>
+                                <div class="font-semibold text-gray-800">Confirmer</div>
+                                <div class="text-sm text-gray-500">Finaliser la commande</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Contenu principal -->
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Colonne principale -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Résumé de la commande -->
+                    <div id="order-summary" class="bg-white rounded-2xl shadow-xl p-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                                <span class="text-2xl">📋</span>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-800">Résumé de la commande</h2>
+                                <p class="text-gray-600">Vérifiez vos articles avant de confirmer</p>
+                            </div>
+                        </div>
+
+                        <div id="order-items" class="space-y-4">
+                            <!-- Les articles seront chargés ici -->
+                        </div>
+                    </div>
+
+                    <!-- Adresse de livraison -->
+                    <div id="delivery-address" class="bg-white rounded-2xl shadow-xl p-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                    <span class="text-2xl">📍</span>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-bold text-gray-800">Adresse de livraison</h2>
+                                    <p class="text-gray-600">Sélectionnez où vous souhaitez être livré</p>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('profile_addresses') }}" class="text-purple-600 hover:text-purple-700 font-medium text-sm">
+                                Gérer les adresses
+                            </a>
+                        </div>
+
+                        {% if addresses %}
+                        <div class="space-y-4">
+                            {% for address in addresses %}
+                            <div class="address-option border-2 {% if address.is_default %}border-purple-500 bg-purple-50{% else %}border-gray-200{% endif %} rounded-xl p-6 cursor-pointer hover:border-purple-300 transition-all duration-200"
+                                 data-address-id="{{ address.id }}"
+                                 data-region="{{ address.region }}"
+                                 data-country="{{ address.country }}"
+                                 onclick="selectAddress({{ address.id }}, '{{ address.region }}', '{{ address.country }}')">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="font-semibold text-gray-800">{{ address.name }}</span>
+                                            {% if address.is_default %}
+                                            <span class="px-2 py-1 bg-purple-500 text-white text-xs rounded-full">Par défaut</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-gray-700">
+                                            <div>{{ address.recipient_name }}</div>
+                                            <div>{{ address.phone }}</div>
+                                            <div class="mt-1">{{ address.address_line_1 }}</div>
+                                            {% if address.address_line_2 %}
+                                            <div>{{ address.address_line_2 }}</div>
+                                            {% endif %}
+                                            <div>{{ address.city }}, {{ address.region }}</div>
+                                            {% if address.postal_code %}
+                                            <div>{{ address.postal_code }}</div>
+                                            {% endif %}
+                                            <div class="font-medium mt-1">{{ address.country }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="w-6 h-6 rounded-full border-2 {% if address.is_default %}border-purple-500 bg-purple-500{% else %}border-gray-300{% endif %} flex items-center justify-center">
+                                            {% if address.is_default %}
+                                            <span class="text-white text-xs">✓</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span class="text-3xl">📍</span>
+                            </div>
+                            <p class="text-gray-600 mb-4">Vous n'avez pas encore d'adresse de livraison</p>
+                            <a href="{{ url_for('profile_addresses') }}" class="inline-block bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-pink-600 hover:to-purple-700 transition-all duration-200">
+                                Ajouter une adresse
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Méthodes de paiement -->
+                    <div id="payment-methods" class="bg-white rounded-2xl shadow-xl p-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                                <span class="text-2xl">💳</span>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-800">Méthode de paiement</h2>
+                                <p class="text-gray-600">Choisissez comment vous souhaitez payer</p>
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <!-- MVOLA -->
+                            <div class="payment-method p-6 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-purple-300 transition-all duration-200" data-method="mvola" onclick="selectPaymentMethod('mvola')">
+                                <div class="flex items-center mb-3">
+                                    <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-white font-bold">M</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-gray-800">MVOLA</div>
+                                        <div class="text-sm text-gray-500">Paiement mobile</div>
+                                    </div>
+                                </div>
+                                <div class="text-sm text-gray-600">
+                                    Paiement mobile rapide et sécurisé
+                                </div>
+                            </div>
+
+                            <!-- Huri Money -->
+                            <div class="payment-method p-6 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-purple-300 transition-all duration-200" data-method="huri" onclick="selectPaymentMethod('huri')">
+                                <div class="flex items-center mb-3">
+                                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-white font-bold">H</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-gray-800">Huri Money</div>
+                                        <div class="text-sm text-gray-500">Paiement digitale</div>
+                                    </div>
+                                </div>
+                                <div class="text-sm text-gray-600">
+                                    Solution de paiement digitale
+                                </div>
+                            </div>
+
+                            <!-- Paiement à la livraison -->
+                            <div class="payment-method p-6 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-purple-300 transition-all duration-200" data-method="cash_on_delivery" onclick="selectPaymentMethod('cash_on_delivery')">
+                                <div class="flex items-center mb-3">
+                                    <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-white">💵</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-gray-800">Paiement à la livraison</div>
+                                        <div class="text-sm text-gray-500">Payez à la réception</div>
+                                    </div>
+                                </div>
+                                <div class="text-sm text-gray-600">
+                                    Payez en espèces lors de la réception
+                                </div>
+                            </div>
+
+                            <!-- Récupération à l'agence -->
+                            <div class="payment-method p-6 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-purple-300 transition-all duration-200" data-method="pickup" onclick="selectPaymentMethod('pickup')">
+                                <div class="flex items-center mb-3">
+                                    <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-white">🏪</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-gray-800">Récupération à l'agence</div>
+                                        <div class="text-sm text-gray-500">Sans livraison</div>
+                                    </div>
+                                </div>
+                                <div class="text-sm text-gray-600">
+                                    Récupérez votre commande sur place
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="space-y-8">
+                    <!-- Total de la commande -->
+                    <div id="order-confirmation" class="bg-white rounded-2xl shadow-xl p-8 sticky top-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mr-4">
+                                <span class="text-2xl">✅</span>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">Total de la commande</h3>
+                                <p class="text-gray-600">Récapitulatif final</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4 mb-6">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Sous-total</span>
+                                <span id="subtotal-amount" class="font-semibold">0 KMF</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Livraison</span>
+                                <span id="delivery-amount" class="font-semibold">0 KMF</span>
+                            </div>
+                            <hr class="border-gray-200">
+                            <div class="flex justify-between text-lg font-bold">
+                                <span>Total</span>
+                                <span id="final-total-amount" class="text-purple-600">0 KMF</span>
+                            </div>
+                        </div>
+
+                        <button id="confirm-order-btn" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                            Confirmer la commande
+                        </button>
+
+                        <p class="text-xs text-gray-500 text-center mt-4">
+                            En confirmant, vous acceptez nos conditions générales de vente
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedPaymentMethod = null;
+let cartData = [];
+let subtotal = 0;
+let deliveryFee = 0;
+let selectedAddressId = null;
+let selectedRegion = '';
+let selectedCountry = '';
+
+// Sélectionner une adresse et calculer les frais de livraison
+async function selectAddress(addressId, region, country) {
+    selectedAddressId = addressId;
+    selectedRegion = region;
+    selectedCountry = country;
+    
+    // Mettre à jour l'UI
+    document.querySelectorAll('.address-option').forEach(el => {
+        el.classList.remove('border-purple-500', 'bg-purple-50');
+        el.classList.add('border-gray-200');
+        const checkMark = el.querySelector('.w-6');
+        checkMark.classList.remove('border-purple-500', 'bg-purple-500');
+        checkMark.classList.add('border-gray-300');
+        checkMark.innerHTML = '';
+    });
+    
+    const selectedEl = document.querySelector(`[data-address-id="${addressId}"]`);
+    if (selectedEl) {
+        selectedEl.classList.remove('border-gray-200');
+        selectedEl.classList.add('border-purple-500', 'bg-purple-50');
+        const checkMark = selectedEl.querySelector('.w-6');
+        checkMark.classList.remove('border-gray-300');
+        checkMark.classList.add('border-purple-500', 'bg-purple-500');
+        checkMark.innerHTML = '<span class="text-white text-xs">✓</span>';
+    }
+    
+    // Calculer les frais de livraison basés sur la région
+    await calculateShippingFee(region, country);
+}
+
+// Calculer les frais de livraison via l'API
+async function calculateShippingFee(region, country) {
+    try {
+        const response = await fetch('/api/shipping-price', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                region: region,
+                country: country
+            })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            deliveryFee = data.shipping_price || 0;
+            updateFinalTotal();
+        } else {
+            deliveryFee = 0;
+            updateFinalTotal();
+        }
+    } catch (error) {
+        console.error('❌ Erreur lors du calcul des frais de livraison:', error);
+        deliveryFee = 0;
+        updateFinalTotal();
+    }
+}
+
+// Charger les données du panier
+async function loadCart() {
+    
+    // Essayer de charger depuis l'API d'abord (pour les utilisateurs connectés)
+    try {
+        const response = await fetch('/api/cart');
+        if (response.ok) {
+            const data = await response.json();
+            if (data && data.length > 0) {
+                cartData = data;
+                displayOrderItems();
+                calculateTotals();
+                
+                // Sélectionner l'adresse par défaut si elle existe
+                // Attendre que le DOM soit prêt
+                setTimeout(() => {
+                    const defaultAddress = document.querySelector('.address-option.border-purple-500[data-address-id]');
+                    if (defaultAddress) {
+                        const addressId = defaultAddress.getAttribute('data-address-id');
+                        const region = defaultAddress.getAttribute('data-region');
+                        const country = defaultAddress.getAttribute('data-country');
+                        selectAddress(addressId, region, country);
+                    }
+                }, 100);
+                return;
+            }
+        }
+    } catch (error) {
+        console.warn('⚠️ Impossible de charger le panier depuis l\'API:', error);
+    }
+    
+    // Fallback: charger depuis localStorage
+    const cartDataString = localStorage.getItem('panier');
+    if (cartDataString) {
+        cartData = JSON.parse(cartDataString);
+        displayOrderItems();
+        calculateTotals();
+    } else {
+        cartData = [];
+        document.getElementById('order-items').innerHTML = '<p class="empty-cart-message">Votre panier est vide</p>';
+    }
+    
+    // Sélectionner l'adresse par défaut si elle existe (pour localStorage fallback)
+    setTimeout(() => {
+        const defaultAddress = document.querySelector('.address-option.border-purple-500[data-address-id]');
+        if (defaultAddress) {
+            const addressId = defaultAddress.getAttribute('data-address-id');
+            const region = defaultAddress.getAttribute('data-region');
+            const country = defaultAddress.getAttribute('data-country');
+            selectAddress(addressId, region, country);
+        }
+    }, 100);
+}
+
+// Afficher les produits de la commande
+function displayOrderItems() {
+    const container = document.getElementById('order-items');
+    container.innerHTML = '';
+
+    cartData.forEach(item => {
+        const orderItem = document.createElement('div');
+        orderItem.className = 'order-item flex items-center p-4 bg-gray-50 rounded-xl mb-3';
+        orderItem.innerHTML = `
+            <img src="${item.image}" alt="${item.nom}" class="w-16 h-16 object-cover rounded-lg mr-4">
+            <div class="flex-1">
+                <div class="font-semibold text-gray-800">${item.nom}</div>
+                <div class="text-sm text-gray-600">Quantité: ${item.quantite || 1}</div>
+            </div>
+            <div class="font-semibold text-purple-600">${item.prix * (item.quantite || 1)} KMF</div>
+        `;
+        container.appendChild(orderItem);
+    });
+}
+
+// Calculer les totaux
+function calculateTotals() {
+    subtotal = cartData.reduce((total, item) => total + (item.prix * (item.quantite || 1)), 0);
+    document.getElementById('subtotal-amount').textContent = subtotal + ' KMF';
+    updateFinalTotal();
+}
+
+// Mettre à jour le total final
+function updateFinalTotal() {
+    const finalTotal = subtotal + deliveryFee;
+    document.getElementById('final-total-amount').textContent = finalTotal + ' KMF';
+    document.getElementById('delivery-amount').textContent = deliveryFee + ' KMF';
+}
+
+// Sélectionner une méthode de paiement
+function selectPaymentMethod(method) {
+    
+    selectedPaymentMethod = method;
+
+    // Mettre à jour l'UI
+    document.querySelectorAll('.payment-method').forEach(el => {
+        el.classList.remove('selected');
+        el.classList.remove('border-purple-500', 'bg-purple-50');
+        el.classList.add('border-gray-200');
+    });
+
+    const selectedEl = document.querySelector(`[data-method="${method}"]`);
+    selectedEl.classList.add('selected');
+    selectedEl.classList.remove('border-gray-200');
+    selectedEl.classList.add('border-purple-500', 'bg-purple-50');
+
+    // Recalculer les frais en fonction du mode de paiement
+    if (method === 'pickup') {
+        // Récupération à l'agence : pas de frais de livraison
+        deliveryFee = 0;
+        updateFinalTotal();
+    } else if (selectedRegion && selectedCountry) {
+        // Si une adresse est sélectionnée, recalculer les frais de livraison
+        calculateShippingFee(selectedRegion, selectedCountry);
+    } else {
+        // Demander à l'utilisateur de sélectionner une adresse
+        console.warn('⚠️ Aucune adresse sélectionnée');
+        alert('Veuillez sélectionner une adresse de livraison');
+        return;
+    }
+    
+    document.getElementById('confirm-order-btn').disabled = false;
+}
+
+// Confirmer la commande
+function confirmOrder() {
+    // Vérifier si l'utilisateur est connecté
+    fetch('/api/login_status', {
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.logged_in) {
+            alert('Veuillez vous connecter pour finaliser votre commande.');
+            window.location.href = '/login';
+            return;
+        }
+
+        if (!selectedPaymentMethod) {
+            alert('Veuillez sélectionner une méthode de paiement');
+            return;
+        }
+
+        // Vérifier si une adresse est sélectionnée (sauf pour pickup)
+        if (selectedPaymentMethod !== 'pickup' && !selectedAddressId) {
+            alert('Veuillez d\'abord sélectionner une adresse de livraison');
+            // Scroll vers la section adresse
+            document.getElementById('delivery-address').scrollIntoView({ behavior: 'smooth' });
+            return;
+        }
+
+        const paymentNames = {
+            'mvola': 'MVOLA',
+            'huri': 'Huri Money',
+            'cash_on_delivery': 'Paiement à la livraison',
+            'pickup': 'Récupération à l\'agence'
+        };
+
+        const finalTotal = subtotal + deliveryFee;
+        const deliveryInfo = selectedPaymentMethod === 'pickup' 
+            ? 'Récupération à l\'agence' 
+            : `Livraison à ${selectedRegion}, ${selectedCountry} (${deliveryFee} KMF)`;
+
+        if (confirm(`Confirmer la commande de ${finalTotal} KMF\n\n` +
+                    `Paiement: ${paymentNames[selectedPaymentMethod]}\n` +
+                    `${deliveryInfo}\n\n` +
+                    `Sous-total: ${subtotal} KMF\n` +
+                    `Frais de livraison: ${deliveryFee} KMF\n` +
+                    `Total: ${finalTotal} KMF`)) {
+            // Créer la commande
+            const orderData = {
+                items: cartData,
+                totalPrice: finalTotal,
+                subtotal: subtotal,
+                deliveryFee: deliveryFee,
+                paymentMethod: paymentNames[selectedPaymentMethod],
+                addressId: selectedAddressId,
+                deliveryRegion: selectedRegion,
+                deliveryCountry: selectedCountry,
+                status: 'pending'
+            };
+
+            fetch('/api/commandes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(orderData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        throw new Error('Authentication required');
+                    } else {
+                        throw new Error('Erreur lors de la création de la commande');
+                    }
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Vider le panier localStorage
+                localStorage.removeItem('panier');
+                // Mettre à jour le badge du panier
+                const badge = document.querySelector('.badge');
+                if (badge) badge.textContent = '0';
+                
+                alert(`🎉 Commande confirmée !\n\nVotre commande de ${finalTotal} KMF a été passée avec succès via ${paymentNames[selectedPaymentMethod]}.\n\nVous recevrez un email de confirmation sous peu.`);
+                window.location.href = '/profile/orders';
+            })
+            .catch(error => {
+                console.error('Erreur lors de la création de la commande:', error);
+                if (error.message === 'Authentication required') {
+                    alert('Une erreur est survenue lors de la finalisation de votre commande. Veuillez vous assurer d\'être connecté.');
+                } else {
+                    alert('Une erreur est survenue lors de la finalisation de votre commande.');
+                }
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Erreur lors de la vérification de connexion:', error);
+        alert('Erreur lors de la vérification de votre connexion. Veuillez réessayer.');
+    });
+}
+
+// Gestion du menu mobile
+document.addEventListener('DOMContentLoaded', function() {
+    // Vérifier si l'utilisateur est connecté au chargement de la page
+    fetch('/api/login_status', {
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.logged_in) {
+            alert('Veuillez vous connecter pour accéder à la page de paiement.');
+            window.location.href = '/login';
+            return;
+        }
+
+        // Continuer avec l'initialisation si connecté
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+                menuIcon.textContent = mobileMenu.classList.contains('hidden') ? '☰' : '✕';
+            });
+
+            // Fermer le menu quand on clique ailleurs
+            document.addEventListener('click', function(event) {
+                if (!mobileMenuBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
+                    mobileMenu.classList.add('hidden');
+                    menuIcon.textContent = '☰';
+                }
+            });
+        }
+
+        // Gestionnaire pour les méthodes de paiement
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', function() {
+                const methodType = this.dataset.method;
+                selectPaymentMethod(methodType);
+            });
+        });
+
+        // Gestionnaire pour le bouton de confirmation
+        const confirmBtn = document.getElementById('confirm-order-btn');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', confirmOrder);
+        }
+
+        // Charger le panier
+        loadCart();
+    })
+    .catch(error => {
+        console.error('Erreur lors de la vérification de connexion:', error);
+        alert('Erreur lors de la vérification de votre connexion. Redirection vers la page de connexion.');
+        window.location.href = '/login';
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Contact - Colourful Beauty{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header page-header-contact">
+    <div class="container">
+        <div class="page-header-content">
+            <div class="page-header-icon">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <h1 class="page-title">Contactez-nous</h1>
+            <p class="page-subtitle">Nous sommes là pour répondre à vos questions</p>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section class="contact-section">
+    <div class="container">
+        <div class="contact-container">
+            <!-- Informations de contact -->
+            <div class="contact-info">
+                <h2>Informations de contact</h2>
+
+                <div class="info-cards">
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="info-content">
+                            <h3>Adresse</h3>
+                            <p>Moroni, Ambassadeur</p>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="info-content">
+                            <h3>Téléphone</h3>
+                            <p>+269 4690041</p>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="info-content">
+                            <h3>Email</h3>
+                            <p>contact@colourful.ma</p>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="info-content">
+                            <h3>Horaires</h3>
+                            <p>Lun - Ven: 9h - 18h<br>Sam: 9h - 16h</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="social-contact">
+                    <h3>Suivez-nous</h3>
+                    <div class="social-links">
+                        <a href="#" class="social-link facebook" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-link instagram" title="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-link tiktok" title="TikTok">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
+                        <a href="#" class="social-link whatsapp" title="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire de contact -->
+            <div class="contact-form">
+                <h2>Envoyez-nous un message</h2>
+
+                <form id="contact-form" method="post">
+                    <div class="form-group">
+                        <label for="name">Nom complet *</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Téléphone</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subject">Sujet *</label>
+                        <select id="subject" name="subject" required>
+                            <option value="">Choisissez un sujet</option>
+                            <option value="commande">Commande</option>
+                            <option value="produit">Question sur un produit</option>
+                            <option value="livraison">Livraison</option>
+                            <option value="retour">Retour/Échange</option>
+                            <option value="autre">Autre</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">Message *</label>
+                        <textarea id="message" name="message" rows="6" required
+                                  placeholder="Décrivez votre demande..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-large">
+                        <i class="fas fa-paper-plane"></i> Envoyer le message
+                    </button>
+                </form>
+
+                <div class="form-success" id="form-success" style="display: none;">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>Message envoyé !</h3>
+                    <p>Nous vous répondrons dans les plus brefs délais.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section">
+    <div class="container">
+        <h2 class="section-title">Questions fréquentes</h2>
+
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>Quels sont les délais de livraison ?</h3>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Les délais de livraison sont de 2-3 jours ouvrés pour Casablanca et 3-5 jours pour les autres villes des Comores.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>Acceptez-vous les retours ?</h3>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Oui, nous acceptons les retours sous 14 jours avec un produit en parfait état et dans son emballage d'origine.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>Comment puis-je payer ma commande ?</h3>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Nous acceptons les paiements en espèces à la livraison et par virement bancaire.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <h3>Les prix sont-ils fixes ?</h3>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Oui, chaque contenant a un prix fixe. Vous payez uniquement le prix du contenant choisi, peu importe les produits qu'il contient.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Gestion du formulaire de contact
+document.getElementById('contact-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+
+    // Simulation d'envoi (à remplacer par un vrai backend)
+    console.log('Données du formulaire:', data);
+
+    // Masquer le formulaire et afficher le message de succès
+    this.style.display = 'none';
+    document.getElementById('form-success').style.display = 'block';
+
+    // Reset du formulaire après 3 secondes
+    setTimeout(() => {
+        this.reset();
+        this.style.display = 'block';
+        document.getElementById('form-success').style.display = 'none';
+    }, 3000);
+
+    afficherMessage('Message envoyé avec succès !', 'success');
+});
+
+// Gestion de l'accordéon FAQ
+document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', function() {
+        const faqItem = this.parentElement;
+        const answer = faqItem.querySelector('.faq-answer');
+        const toggle = this.querySelector('.faq-toggle');
+
+        // Fermer tous les autres
+        document.querySelectorAll('.faq-item').forEach(item => {
+            if (item !== faqItem) {
+                item.classList.remove('active');
+                item.querySelector('.faq-answer').style.maxHeight = null;
+                item.querySelector('.faq-toggle').textContent = '+';
+            }
+        });
+
+        // Ouvrir/fermer celui-ci
+        faqItem.classList.toggle('active');
+
+        if (faqItem.classList.contains('active')) {
+            answer.style.maxHeight = answer.scrollHeight + 'px';
+            toggle.textContent = '-';
+        } else {
+            answer.style.maxHeight = null;
+            toggle.textContent = '+';
+        }
+    });
+});
+</script>
+{% endblock %}

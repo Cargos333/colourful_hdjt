@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+
+{% block title %}{{ produit.nom }} - Colourful HDJT{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<section class="breadcrumb-section">
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="{{ url_for('index') }}">Accueil</a>
+            <span class="separator">></span>
+            <a href="{{ url_for('produits') }}">Produits</a>
+            <span class="separator">></span>
+            <span class="current">{{ produit.nom }}</span>
+        </nav>
+    </div>
+</section>
+
+<!-- Produit Détail -->
+<section class="product-detail-section">
+    <div class="container">
+        <div class="product-detail-container">
+            <!-- Images du produit -->
+            <div class="product-images">
+                <div class="main-image">
+                    <img src="{{ produit.image }}" alt="{{ produit.nom }}" id="main-product-image">
+                    {% if produits_inclus %}
+                    <div class="image-navigation">
+                        <button class="nav-btn prev-btn" onclick="prevImage()">&#10094;</button>
+                        <button class="nav-btn next-btn" onclick="nextImage()">&#10095;</button>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="product-thumbnails">
+                    <!-- Image principale du contenant -->
+                    <img src="{{ produit.image }}" alt="{{ produit.nom }}" class="thumbnail active" onclick="changeImage(this.src, 0)">
+                    {% if produits_inclus %}
+                        {% for produit_inclus in produits_inclus %}
+                        <img src="{{ produit_inclus.image }}" alt="{{ produit_inclus.nom }}" class="thumbnail" onclick="changeImage(this.src, {{ loop.index }})">
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Informations du produit -->
+            <div class="product-info-detail">
+                <div class="product-header">
+                    <h1 class="product-title">{{ produit.nom }}</h1>
+                </div>
+
+                <div class="product-price-section">
+                    <span class="product-price">{{ produit.prix|int }} KMF</span>
+                    <span class="price-note">Prix du contenant inclus</span>
+                </div>
+
+                <div class="product-description">
+                    <h3>Description</h3>
+                    <p>{{ produit.description }}</p>
+                </div>
+
+                <div class="product-actions">
+                    <div class="quantity-selector">
+                        <label for="quantity">Quantité :</label>
+                        <div class="quantity-controls">
+                            <button type="button" class="quantity-btn" onclick="changeQuantity(-1)">-</button>
+                            <input type="number" id="quantity" name="quantity" value="1" min="1" max="10">
+                            <button type="button" class="quantity-btn" onclick="changeQuantity(1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        {% if produit.personnalisable %}
+                        <a href="{{ url_for('personnaliser_produit', produit_id=produit.id) }}" class="btn btn-secondary btn-large">
+                            <i class="fas fa-palette"></i> Personnaliser
+                        </a>
+                        {% endif %}
+                        <button class="btn btn-primary btn-large add-to-cart-detail"
+                                data-product-id="{{ produit.id }}"
+                                data-product-nom="{{ produit.nom }}"
+                                data-product-prix="{{ produit.prix }}"
+                                data-product-image="{{ produit.image }}"
+                                data-product-contenant="{{ produit.contenant }}">
+                            <i class="fas fa-cart-plus"></i> Ajouter au panier
+                        </button>
+                        <button class="btn btn-outline btn-large add-to-favorites"
+                                data-product-id="{{ produit.id }}"
+                                data-product-nom="{{ produit.nom }}"
+                                data-product-prix="{{ produit.prix }}"
+                                data-product-image="{{ produit.image }}"
+                                data-product-contenant="{{ produit.contenant }}">
+                            <i class="fas fa-heart"></i> Ajouter aux favoris
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Produits Similaires -->
+<section class="related-products">
+    <div class="container">
+        <h2 class="section-title">Produits Similaires</h2>
+        <div class="products-grid">
+            {% for p in produits[:4] %}
+            {% if p.id != produit.id %}
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="{{ p.image }}" alt="{{ p.nom }}">
+                    <div class="product-badge">
+                        <i class="fas fa-{{ 'box' if p.contenant == 'carton' else ('shopping-bag' if p.contenant == 'sac_plastique' else 'cup-straw') }}"></i>
+                        {{ contenants[p.contenant].nom if p.contenant else 'Contenant personnalisé' }}
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">{{ p.nom }}</h3>
+                    <p class="product-description">{{ p.description }}</p>
+                    <div class="product-footer">
+                        <span class="product-price">{{ p.prix|int }} KMF</span>
+                        <a href="{{ url_for('produit_detail', produit_id=p.id) }}" class="btn btn-small">
+                            Voir détails
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Variables pour la navigation d'images
+let currentImageIndex = 0;
+const allImages = [
+    '{{ produit.image }}',
+    {% if produits_inclus %}
+        {% for produit_inclus in produits_inclus %}
+        '{{ produit_inclus.image }}',
+        {% endfor %}
+    {% endif %}
+];
+
+// Changer l'image principale
+function changeImage(src, index) {
+    console.log('Changing image to:', src, 'index:', index);
+    document.getElementById('main-product-image').src = src;
+    currentImageIndex = index;
+
+    // Mettre à jour les thumbnails
+    document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
+        thumb.classList.toggle('active', i === index);
+    });
+}
+
+// Navigation précédente
+function prevImage() {
+    console.log('prevImage called, current index:', currentImageIndex, 'total images:', allImages.length);
+    if (allImages.length <= 1) return; // Pas de navigation si une seule image
+    currentImageIndex = currentImageIndex > 0 ? currentImageIndex - 1 : allImages.length - 1;
+    changeImage(allImages[currentImageIndex], currentImageIndex);
+}
+
+// Navigation suivante
+function nextImage() {
+    console.log('nextImage called, current index:', currentImageIndex, 'total images:', allImages.length);
+    if (allImages.length <= 1) return; // Pas de navigation si une seule image
+    currentImageIndex = currentImageIndex < allImages.length - 1 ? currentImageIndex + 1 : 0;
+    changeImage(allImages[currentImageIndex], currentImageIndex);
+}
+
+// Gestion de la quantité
+function changeQuantity(delta) {
+    const input = document.getElementById('quantity');
+    const newValue = parseInt(input.value) + delta;
+    if (newValue >= 1 && newValue <= 10) {
+        input.value = newValue;
+    }
+}
+
+// Gestion des favoris
+class Favoris {
+    constructor() {
+        this.items = this.charger();
+    }
+
+    charger() {
+        const data = localStorage.getItem('favoris');
+        return data ? JSON.parse(data) : [];
+    }
+
+    sauvegarder() {
+        localStorage.setItem('favoris', JSON.stringify(this.items));
+    }
+
+    ajouter(produit) {
+        const index = this.items.findIndex(item => item.id === produit.id);
+        if (index === -1) {
+            this.items.push(produit);
+            this.sauvegarder();
+            return true; // Ajouté
+        }
+        return false; // Déjà dans les favoris
+    }
+
+    retirer(produitId) {
+        this.items = this.items.filter(item => item.id !== produitId);
+        this.sauvegarder();
+    }
+
+    estFavori(produitId) {
+        return this.items.some(item => item.id === produitId);
+    }
+
+    obtenirTous() {
+        return this.items;
+    }
+}
+
+// Initialiser les favoris
+const favoris = new Favoris();
+
+// Fonction pour ajouter au panier depuis la page détail
+async function ajouterAuPanierDetail() {
+    const button = document.querySelector('.add-to-cart-detail');
+    const produitId = button.dataset.productId;
+    const nom = button.dataset.productNom;
+    const prix = parseFloat(button.dataset.productPrix);
+    const image = button.dataset.productImage;
+    const contenant = button.dataset.productContenant;
+    const quantite = parseInt(document.getElementById('quantity').value);
+
+    // Créer l'objet produit avec la quantité
+    const produit = {
+        id: produitId,
+        nom: nom,
+        prix: prix,
+        image: image,
+        contenant: contenant,
+        quantite: quantite,
+        type: 'predefined'
+    };
+
+    try {
+        const response = await fetch('/api/cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify(produit)
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            afficherMessage('Produit ajouté au panier !', 'success');
+            
+            // Mettre à jour le badge du panier
+            const badge = document.querySelector('.badge');
+            if (badge && data.cart) {
+                const totalItems = data.cart.reduce((sum, item) => sum + item.quantite, 0);
+                badge.textContent = totalItems;
+            }
+        } else {
+            console.error('Erreur lors de l\'ajout au panier:', response.status);
+            afficherMessage('Erreur lors de l\'ajout au panier. Veuillez réessayer.', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur réseau:', error);
+        afficherMessage('Erreur réseau. Veuillez vérifier votre connexion.', 'error');
+    }
+}
+
+// Gestion des événements au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Page loaded, allImages:', allImages);
+    console.log('Current image index:', currentImageIndex);
+
+    // Gestionnaire pour le bouton "Ajouter au panier"
+    const addToCartBtn = document.querySelector('.add-to-cart-detail');
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            ajouterAuPanierDetail();
+        });
+    }
+
+    // Gestionnaire pour le bouton "Ajouter aux favoris"
+    const addToFavoritesBtn = document.querySelector('.add-to-favorites');
+    if (addToFavoritesBtn) {
+        addToFavoritesBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleFavorites(this);
+        });
+
+        // Initialiser l'état du bouton favoris
+        const produitId = parseInt(addToFavoritesBtn.dataset.productId);
+        if (favoris.estFavori(produitId)) {
+            addToFavoritesBtn.innerHTML = '<i class="fas fa-heart"></i> Retirer des favoris';
+            addToFavoritesBtn.classList.add('btn-favorited');
+        }
+    }
+});
+
+// Fonction pour basculer les favoris
+async function toggleFavorites(button) {
+    const produitId = parseInt(button.dataset.productId);
+    const nom = button.dataset.productNom;
+    const prix = parseFloat(button.dataset.productPrix);
+    const image = button.dataset.productImage;
+    const contenant = button.dataset.productContenant;
+
+    const produit = {
+        id: produitId,
+        nom: nom,
+        prix: prix,
+        image: image,
+        contenant: contenant
+    };
+
+    if (favoris.estFavori(produitId)) {
+        // Retirer des favoris
+        try {
+            const response = await fetch('/api/favorites', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ product_id: produitId.toString() })
+            });
+
+            if (response.ok) {
+                favoris.retirer(produitId);
+                button.innerHTML = '<i class="fas fa-heart"></i> Ajouter aux favoris';
+                button.classList.remove('btn-favorited');
+                afficherMessage('Produit retiré des favoris', 'info');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            afficherMessage('Erreur lors de la suppression', 'error');
+        }
+    } else {
+        // Ajouter aux favoris
+        try {
+            const response = await fetch('/api/favorites', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ 
+                    product_id: produitId.toString(),
+                    product_type: 'predefined',
+                    product_data: produit
+                })
+            });
+
+            if (response.ok) {
+                favoris.ajouter(produit);
+                button.innerHTML = '<i class="fas fa-heart"></i> Retirer des favoris';
+                button.classList.add('btn-favorited');
+                afficherMessage('Produit ajouté aux favoris !', 'success');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            afficherMessage('Erreur lors de l\'ajout', 'error');
+        }
+    }
+}
+
+// Fonction pour afficher les messages
+function afficherMessage(message, type) {
+    // Créer l'élément de message
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message message-${type}`;
+    messageDiv.textContent = message;
+
+    // Ajouter au DOM
+    document.body.appendChild(messageDiv);
+
+    // Afficher avec animation
+    setTimeout(() => messageDiv.classList.add('show'), 100);
+
+    // Masquer après 3 secondes
+    setTimeout(() => {
+        messageDiv.classList.remove('show');
+        setTimeout(() => messageDiv.remove(), 300);
+    }, 3000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}Connexion - Colourful HDJT{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex">
+    <!-- Hero Section -->
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-pink-500 via-purple-600 to-pink-700 p-12 flex-col justify-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+        <div class="relative z-10 text-white max-w-lg">
+            <div class="mb-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 rounded-full mb-6">
+                    <i class="fas fa-sparkles text-3xl text-white"></i>
+                </div>
+                <h1 class="text-5xl font-bold mb-4 leading-tight">
+                    Colourful HDJT
+                </h1>
+                <p class="text-xl text-pink-100 mb-8 leading-relaxed">
+                    Votre beauté, notre passion. Découvrez notre univers de produits cosmétiques haut de gamme.
+                </p>
+            </div>
+
+            <div class="space-y-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-star text-yellow-300 text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold">Qualité Premium</h3>
+                        <p class="text-pink-100">Produits de haute qualité testés dermatologiquement</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-heart text-red-300 text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold">Personnalisation</h3>
+                        <p class="text-pink-100">Créez vos produits sur mesure selon vos envies</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-shipping-fast text-green-300 text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold">Livraison Rapide</h3>
+                        <p class="text-pink-100">Service de livraison express dans tout Mayotte</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Decorative Elements -->
+        <div class="absolute top-20 right-20 w-32 h-32 bg-white bg-opacity-10 rounded-full"></div>
+        <div class="absolute bottom-20 left-20 w-24 h-24 bg-white bg-opacity-10 rounded-full"></div>
+        <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-white bg-opacity-10 rounded-full"></div>
+    </div>
+
+    <!-- Login Form Section -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gradient-to-br from-gray-50 to-white">
+        <div class="w-full max-w-md space-y-8">
+            <!-- Mobile Logo (visible only on mobile) -->
+            <div class="lg:hidden text-center mb-8">
+                <div class="mx-auto h-16 w-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-sparkles text-2xl text-white"></i>
+                </div>
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+                    Colourful HDJT
+                </h1>
+                <p class="mt-2 text-gray-600">Votre beauté, notre passion</p>
+            </div>
+
+            <!-- Login Form -->
+            <div class="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900">Bienvenue de retour</h2>
+                    <p class="text-gray-600 mt-2">Connectez-vous à votre compte</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('login') }}" class="space-y-6">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2 text-pink-500"></i>Email ou nom d'utilisateur
+                        </label>
+                        <div class="relative">
+                            <input
+                                type="text"
+                                id="email"
+                                name="email"
+                                required
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                                placeholder="votre@email.com ou votre_nom_utilisateur"
+                            >
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-2 text-pink-500"></i>Mot de passe
+                        </label>
+                        <div class="relative">
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                required
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                                placeholder="••••••••"
+                            >
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="w-4 h-4 text-pink-500 border-gray-300 rounded focus:ring-pink-500">
+                            <span class="ml-2 text-sm text-gray-600">Se souvenir de moi</span>
+                        </label>
+                        <a href="#" class="text-sm text-pink-500 hover:text-pink-600 font-medium transition-colors">
+                            Mot de passe oublié ?
+                        </a>
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-3 px-6 rounded-xl hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
+                    >
+                        <i class="fas fa-sign-in-alt mr-2"></i>Se connecter
+                    </button>
+                </form>
+
+                <div class="mt-6 text-center">
+                    <p class="text-gray-600">
+                        Pas encore de compte ?
+                        <a href="{{ url_for('register') }}" class="text-pink-500 hover:text-pink-600 font-semibold transition-colors">
+                            Créer un compte
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center text-sm text-gray-500">
+                <p>En vous connectant, vous acceptez nos
+                    <a href="{{ url_for('terms') }}" class="text-pink-500 hover:text-pink-600">Conditions d'utilisation</a> et
+                    <a href="{{ url_for('privacy') }}" class="text-pink-500 hover:text-pink-600">Politique de confidentialité</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,554 @@
+{% extends "base.html" %}
+
+{% block title %}Produits - COLOURFUL HDJT{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header page-header-creer-contenant">
+    <div class="container">
+        <div class="page-header-content">
+            <div class="page-header-icon">
+                <i class="fas fa-magic"></i>
+            </div>
+            <h1 class="page-title">Créez Votre Contenant Personnalisé</h1>
+            <p class="page-subtitle">Choisissez votre contenant et sélectionnez les produits que vous souhaitez y inclure</p>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <div class="create-container-page">
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <span class="step-label">Contenant</span>
+                </div>
+                <div class="progress-step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <span class="step-label">Produits</span>
+                </div>
+                <div class="progress-step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <span class="step-label">Récapitulatif</span>
+                </div>
+            </div>
+        </div>
+
+        <form id="create-container-form" method="POST">
+            <!-- Étape 1: Choix du contenant -->
+            <div class="step-section" id="container-section">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <h2>Choisissez votre contenant</h2>
+                </div>
+                <div class="container-options">
+                    {% for type_contenant, info in contenants.items() %}
+                    <div class="container-option">
+                        <input type="radio" id="contenant-{{ type_contenant }}" name="contenant_type" value="{{ type_contenant }}" required>
+                        <label for="contenant-{{ type_contenant }}" class="container-label">
+                            <div class="container-image">
+                                {% if info.image %}
+                                <img src="{{ info.image }}" alt="{{ info.nom }}" class="container-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <div class="icon-wrapper icon-{{ type_contenant }}" style="display: none;">
+                                    <i class="fas fa-{{ 'box' if type_contenant == 'carton' else ('shopping-bag' if type_contenant == 'sac_en_plastique' else 'cup-straw') }}"></i>
+                                </div>
+                                {% else %}
+                                <div class="icon-wrapper icon-{{ type_contenant }}">
+                                    <i class="fas fa-{{ 'box' if type_contenant == 'carton' else ('shopping-bag' if type_contenant == 'sac_en_plastique' else 'cup-straw') }}"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="container-info">
+                                <h3>{{ info.nom }}</h3>
+                                <p>Prix de base: {{ info.prix_base }} KMF</p>
+                                <p>Jusqu'à {{ info.max_produits }} produits</p>
+                            </div>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Étape 2: Sélection des produits -->
+            <div class="step-section" id="products-section" style="display: none;">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <h2>Choisissez vos produits</h2>
+                </div>
+                <p id="container-limits"></p>
+
+                <div class="products-selection">
+                    {% for categorie_key, categorie_data in options_produits.items() %}
+                    <div class="category-section" data-category="{{ categorie_key }}">
+                        <h3>{{ categorie_data.nom }} <span class="category-count" id="count-{{ categorie_key }}">0</span></h3>
+                        <div class="products-grid">
+                            {% for option in categorie_data.options %}
+                            <div class="product-option-card">
+                                <input type="checkbox" id="product-{{ option.id }}" name="produits[]" value="{{ option.id }}" data-price="{{ option.prix }}" data-category="{{ categorie_key }}">
+                                <label for="product-{{ option.id }}" class="product-label">
+                                    <div class="product-image">
+                                        <img src="{{ option.image }}" alt="{{ option.nom }}">
+                                    </div>
+                                    <div class="product-info">
+                                        <h4>{{ option.nom }}</h4>
+                                        <p class="brand">{{ option.marque }}</p>
+                                        <p class="price">+{{ option.prix }} KMF</p>
+                                    </div>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Récapitulatif -->
+            <div class="summary-section" id="summary-section" style="display: none;">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <h2>Récapitulatif de votre contenant personnalisé</h2>
+                </div>
+                <div class="summary-content">
+                    <div class="selected-container">
+                        <h3>Contenant sélectionné:</h3>
+                        <p id="selected-container-info"></p>
+                    </div>
+                    <div class="selected-products">
+                        <h3>Produits sélectionnés:</h3>
+                        <ul id="selected-products-list"></ul>
+                    </div>
+                    <div class="price-breakdown">
+                        <div class="price-row">
+                            <span>Prix du contenant:</span>
+                            <span id="container-price">0 KMF</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Produits sélectionnés:</span>
+                            <span id="products-price">0 KMF</span>
+                        </div>
+                        <hr>
+                        <div class="price-row total">
+                            <span>Total:</span>
+                            <span id="total-price">0 KMF</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions-section">
+                <button type="button" class="btn-secondary" onclick="resetForm()">Recommencer</button>
+                <button type="submit" class="btn-primary" id="submit-btn" disabled>
+                    <i class="fas fa-cart-plus"></i> Ajouter au panier
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('create-container-form');
+    const productsSection = document.getElementById('products-section');
+    const summarySection = document.getElementById('summary-section');
+    const containerLimits = document.getElementById('container-limits');
+    const selectedContainerInfo = document.getElementById('selected-container-info');
+    const selectedProductsList = document.getElementById('selected-products-list');
+    const containerPrice = document.getElementById('container-price');
+    const productsPrice = document.getElementById('products-price');
+    const totalPrice = document.getElementById('total-price');
+    const submitBtn = document.getElementById('submit-btn');
+
+    const contenantsData = {{ contenants|tojson() }};
+    let selectedContainer = null;
+    let maxProducts = 0;
+    let hasScrolledToButton = false; // Variable pour suivre si le scroll a déjà été fait
+
+    // Initialiser la barre de progression
+    updateProgressBar(1);
+
+    // Fonction pour faire défiler vers le bouton ajouter au panier
+    function scrollToAddButton() {
+        if (hasScrolledToButton) return; // Ne scroll qu'une seule fois
+        const addButton = document.getElementById('submit-btn');
+        if (addButton && !addButton.disabled) {
+            addButton.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'nearest'
+            });
+            hasScrolledToButton = true; // Marquer comme fait
+        }
+    }
+
+    // Gestionnaire pour la sélection du contenant
+    document.querySelectorAll('input[name="contenant_type"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            selectedContainer = this.value;
+            const containerInfo = contenantsData[selectedContainer];
+            maxProducts = containerInfo.max_produits;
+
+            // Afficher la section produits
+            productsSection.style.display = 'block';
+            containerLimits.textContent = `Vous pouvez sélectionner jusqu'à ${maxProducts} produits pour ce contenant.`;
+
+            // Mettre à jour la visibilité du footer
+            updateFooterVisibility();
+
+            // Mettre à jour la barre de progression
+            updateProgressBar(2);
+
+            // Masquer les catégories non autorisées
+            document.querySelectorAll('.category-section').forEach(section => {
+                const category = section.dataset.category;
+                console.log('Catégorie:', category, 'Autorisée:', containerInfo.categories_autorisees.includes(category));
+                
+                if (containerInfo.categories_autorisees && containerInfo.categories_autorisees.length > 0) {
+                    // Si des catégories spécifiques sont définies, filtrer selon celles-ci
+                    if (containerInfo.categories_autorisees.includes(category)) {
+                        section.style.display = 'block';
+                        console.log('Affichage de la catégorie:', category);
+                    } else {
+                        section.style.display = 'none';
+                        console.log('Masquage de la catégorie:', category);
+                        // Décocher les produits de cette catégorie
+                        section.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
+                    }
+                } else {
+                    // Si aucune catégorie spécifique n'est définie, afficher toutes les catégories
+                    section.style.display = 'block';
+                    console.log('Affichage de toutes les catégories (fallback)');
+                }
+            });
+
+            updateSummary();
+            // Faire défiler vers les produits après la sélection du contenant
+            setTimeout(() => {
+                productsSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 300);
+        });
+    });
+
+    // Fonction pour mettre à jour la barre de progression
+    function updateProgressBar(currentStep) {
+        const steps = document.querySelectorAll('.progress-step');
+        const progressBar = document.querySelector('.progress-bar::after');
+
+        steps.forEach((step, index) => {
+            const stepNumber = index + 1;
+            if (stepNumber < currentStep) {
+                step.classList.add('completed');
+                step.classList.remove('active');
+            } else if (stepNumber === currentStep) {
+                step.classList.add('active');
+                step.classList.remove('completed');
+            } else {
+                step.classList.remove('active', 'completed');
+            }
+        });
+
+        // Calculer la largeur de la barre de progression
+        const progressWidth = ((currentStep - 1) / (steps.length - 1)) * 100;
+        document.querySelector('.progress-bar').style.setProperty('--progress-width', progressWidth + '%');
+    }
+
+    // Gestionnaire pour la sélection des produits
+    document.addEventListener('change', function(e) {
+        if (e.target.type === 'checkbox' && e.target.name === 'produits[]') {
+            const checkedBoxes = document.querySelectorAll('input[name="produits[]"]:checked');
+
+            if (checkedBoxes.length > maxProducts) {
+                e.target.checked = false;
+                alert(`Vous ne pouvez sélectionner que ${maxProducts} produits maximum pour ce contenant.`);
+                return;
+            }
+
+            updateSummary();
+            // Faire défiler vers le bouton uniquement quand le nombre requis de produits est atteint
+            if (checkedBoxes.length === maxProducts) {
+                setTimeout(scrollToAddButton, 500);
+            }
+        }
+    });
+
+    // Initialiser les compteurs de catégories
+    updateCategoryCounts();
+
+    function updateSummary() {
+        if (!selectedContainer) return;
+
+        const containerInfo = contenantsData[selectedContainer];
+        const checkedBoxes = document.querySelectorAll('input[name="produits[]"]:checked');
+
+        // Informations du contenant
+        selectedContainerInfo.textContent = `${containerInfo.nom} - ${containerInfo.prix_base} KMF (max ${containerInfo.max_produits} produits)`;
+        containerPrice.textContent = containerInfo.prix_base + ' KMF';
+
+        // Liste des produits sélectionnés
+        let productsHtml = '';
+        let totalProductsPrice = 0;
+
+        checkedBoxes.forEach(checkbox => {
+            const label = document.querySelector(`label[for="${checkbox.id}"]`);
+            if (!label) {
+                console.error('Label not found for checkbox:', checkbox.id);
+                return;
+            }
+            const productInfo = label.querySelector('.product-info');
+            if (!productInfo) {
+                console.error('Product info not found in label:', label);
+                return;
+            }
+            const productName = productInfo.querySelector('h4').textContent;
+            const productBrand = productInfo.querySelector('.brand').textContent;
+            const productPrice = parseInt(checkbox.dataset.price);
+
+            productsHtml += `<li>${productName} (${productBrand}) - ${productPrice} KMF</li>`;
+            totalProductsPrice += productPrice;
+        });
+
+        if (productsHtml === '') {
+            productsHtml = '<li>Aucun produit sélectionné</li>';
+        }
+
+        selectedProductsList.innerHTML = productsHtml;
+        productsPrice.textContent = totalProductsPrice + ' KMF';
+        totalPrice.textContent = (containerInfo.prix_base + totalProductsPrice) + ' KMF';
+
+        // Afficher/masquer les sections
+        if (checkedBoxes.length > 0) {
+            summarySection.style.display = 'block';
+            submitBtn.disabled = false;
+            // Mettre à jour la barre de progression
+            updateProgressBar(3);
+            // Faire défiler vers le bouton uniquement quand le nombre requis de produits est atteint
+            if (checkedBoxes.length === maxProducts) {
+                setTimeout(scrollToAddButton, 500);
+            }
+        } else {
+            summarySection.style.display = 'none';
+            submitBtn.disabled = true;
+        }
+
+        // Mettre à jour les compteurs de catégories
+        updateCategoryCounts();
+    }
+
+    function updateCategoryCounts() {
+        // Mettre à jour les compteurs pour chaque catégorie
+        document.querySelectorAll('.category-section').forEach(section => {
+            const category = section.dataset.category;
+            const checkedBoxes = section.querySelectorAll('input[type="checkbox"]:checked');
+            const countElement = document.getElementById(`count-${category}`);
+            if (countElement) {
+                countElement.textContent = checkedBoxes.length;
+                // Changer la couleur si des produits sont sélectionnés
+                if (checkedBoxes.length > 0) {
+                    countElement.style.background = 'var(--success)';
+                } else {
+                    countElement.style.background = 'var(--primary-color)';
+                }
+            }
+        });
+    }
+
+    // Gestionnaire pour la soumission du formulaire
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const selectedContainerRadio = document.querySelector('input[name="contenant_type"]:checked');
+        const selectedProductsCheckboxes = document.querySelectorAll('input[name="produits[]"]:checked');
+        
+        if (!selectedContainerRadio) {
+            alert('Veuillez sélectionner un type de contenant.');
+            return;
+        }
+        
+        if (selectedProductsCheckboxes.length === 0) {
+            alert('Veuillez sélectionner au moins un produit.');
+            return;
+        }
+        
+        // Créer le contenant personnalisé pour l'API
+        const containerType = selectedContainerRadio.value;
+        const containerInfo = contenantsData[containerType];
+        
+        const produitsSelectionnes = [];
+        let totalPrice = containerInfo.prix_base;
+        
+        selectedProductsCheckboxes.forEach(checkbox => {
+            const label = document.querySelector(`label[for="${checkbox.id}"]`);
+            if (!label) {
+                console.error('Label not found for checkbox:', checkbox.id);
+                return;
+            }
+            const productInfo = label.querySelector('.product-info');
+            if (!productInfo) {
+                console.error('Product info not found in label:', label);
+                return;
+            }
+            const productName = productInfo.querySelector('h4').textContent;
+            const productBrand = productInfo.querySelector('.brand').textContent;
+            const productPrice = parseInt(checkbox.dataset.price);
+            const productId = checkbox.value;
+            
+            produitsSelectionnes.push({
+                id: productId,
+                nom: productName,
+                marque: productBrand,
+                prix: productPrice
+            });
+            
+            totalPrice += productPrice;
+        });
+        
+        // Récupérer l'image réelle du contenant
+        const containerImageUrl = containerInfo.image || 'https://via.placeholder.com/300x300?text=' + encodeURIComponent(containerInfo.nom);
+        
+        const customContainer = {
+            id: 'custom-' + Date.now(),
+            product_id: 'custom-' + Date.now(),
+            nom: `Contenant ${containerInfo.nom} personnalisé`,
+            description: `Contenant personnalisé avec ${produitsSelectionnes.length} produits`,
+            contenant: containerType,
+            prix: totalPrice,
+            image: containerImageUrl,
+            quantite: 1,
+            type: 'contenant_personnalise',
+            product_type: 'contenant_personnalise',
+            produits_inclus: produitsSelectionnes
+        };
+        
+        console.log('Container data:', {
+            type: containerType,
+            image: containerImageUrl,
+            nom: containerInfo.nom
+        });
+        
+        // Vérifier que panier existe
+        if (typeof panier === 'undefined') {
+            alert('Erreur: Le système de panier n\'est pas chargé. Veuillez recharger la page.');
+            console.error('panier object is not defined');
+            return;
+        }
+        
+        // Afficher un message de chargement
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ajout en cours...';
+        
+        try {
+            // Ajouter au panier via l'API
+            const success = await panier.ajouter(customContainer);
+            
+            if (success) {
+                if (typeof afficherMessage !== 'undefined') {
+                    afficherMessage('Contenant personnalisé ajouté au panier !', 'success');
+                } else {
+                    alert('Contenant personnalisé ajouté au panier !');
+                }
+                setTimeout(() => {
+                    window.location.href = '{{ url_for("panier") }}';
+                }, 1500);
+            } else {
+                if (typeof afficherMessage !== 'undefined') {
+                    afficherMessage('Erreur lors de l\'ajout au panier. Veuillez réessayer.', 'error');
+                } else {
+                    alert('Erreur lors de l\'ajout au panier. Veuillez réessayer.');
+                }
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-cart-plus"></i> Ajouter au panier';
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            alert('Erreur lors de l\'ajout au panier: ' + error.message);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-cart-plus"></i> Ajouter au panier';
+        }
+    });
+
+    // Fonction pour recommencer
+    window.resetForm = function() {
+        form.reset();
+        productsSection.style.display = 'none';
+        summarySection.style.display = 'none';
+        selectedContainer = null;
+        maxProducts = 0;
+        hasScrolledToButton = false; // Réinitialiser le flag de scroll
+        submitBtn.disabled = true;
+        // Remettre à jour la visibilité des boutons
+        updateActionButtonsVisibility();
+        // Remettre à jour la visibilité du footer
+        updateFooterVisibility();
+        // Remettre à jour la barre de progression
+        updateProgressBar(1);
+
+        // Scroll to top sur mobile
+        if (window.innerWidth <= 768) {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    };
+
+    // Gestion de la visibilité des boutons d'action selon le scroll (uniquement sur mobile)
+    let lastScrollY = window.scrollY;
+    const actionsSection = document.querySelector('.actions-section');
+
+    function updateActionButtonsVisibility() {
+        // Ne masquer les boutons que sur mobile et seulement si aucun contenant n'est sélectionné
+        if (window.innerWidth > 768 || !actionsSection || selectedContainer) return;
+
+        const footer = document.querySelector('.footer');
+        if (!footer) return;
+
+        const footerRect = footer.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+
+        // Si le footer est visible dans la fenêtre (avec une marge de 100px)
+        if (footerRect.top < windowHeight - 100) {
+            actionsSection.style.transform = 'translateY(100%)';
+            actionsSection.style.opacity = '0';
+            actionsSection.style.pointerEvents = 'none';
+        } else {
+            actionsSection.style.transform = 'translateY(0)';
+            actionsSection.style.opacity = '1';
+            actionsSection.style.pointerEvents = 'auto';
+        }
+    }
+
+    // Fonction pour masquer/afficher le footer selon la sélection du contenant (mobile uniquement)
+    function updateFooterVisibility() {
+        const footer = document.querySelector('.footer');
+        if (!footer || window.innerWidth > 768) return;
+
+        if (selectedContainer) {
+            footer.style.display = 'none';
+        } else {
+            footer.style.display = 'block';
+        }
+    }
+
+    // Écouter les événements de scroll (uniquement sur mobile)
+    if (window.innerWidth <= 768) {
+        window.addEventListener('scroll', updateActionButtonsVisibility);
+        // Vérifier au chargement de la page
+        updateActionButtonsVisibility();
+    }
+
+    // Vérifier la visibilité du footer au chargement
+    updateFooterVisibility();
+});
+</script>
+    </div>
+</div>
+{% endblock %}

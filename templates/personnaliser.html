@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+
+{% block title %}Personnaliser {{ produit.nom }} - COLOURFUL HDJT{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="personalization-container">
+        <div class="product-header">
+            <div class="product-image-column">
+                <div class="product-image-container">
+                    <img src="{{ produit.image or '/static/images/default-container.svg' }}" alt="{{ produit.nom }}" class="product-image">
+                </div>
+            </div>
+            
+            <div class="product-details-column">
+                <div class="product-meta">
+                    <span class="product-badge">
+                        <i class="fas fa-magic"></i> Personnalisable
+                    </span>
+                    {% if produit.type == 'container' %}
+                    <span class="container-type-badge">
+                        <i class="fas fa-box"></i> Contenant
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <h1>{{ produit.nom }}</h1>
+                
+                <div class="product-description-section">
+                    <p class="product-description">{{ produit.description }}</p>
+                    
+                    {% if produit.categories %}
+                    <div class="product-categories">
+                        <h3><i class="fas fa-tags"></i> Catégories incluses</h3>
+                        <div class="categories-list">
+                            {% for categorie in produit.categories %}
+                            <span class="category-tag">{{ categorie.replace('_', ' ')|title }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="product-price-column">
+                <div class="price-section">
+                    <div class="price-display">
+                        <span class="current-price" id="current-price">{{ produit.prix|int }} KMF</span>
+                        <span class="price-note">Prix fixe - personnalisation incluse</span>
+                    </div>
+                    
+                    <div class="price-features">
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Livraison gratuite</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Garantie qualité</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="personalization-form">
+            <h2>Personnalisez votre {{ produit.nom.lower() }}</h2>
+            <p>Choisissez les produits de votre choix dans chaque catégorie. Le prix reste fixe !</p>
+
+            <form id="personalization-form">
+                {% for categorie_key, categorie_data in options_produits.items() %}
+                <div class="accordion-section">
+                    <button type="button" class="accordion-header" data-category="{{ categorie_key }}">
+                        <span class="accordion-title">{{ categorie_data.nom }}</span>
+                        <span class="accordion-subtitle">
+                            {% if produit.quantite_par_categorie %}
+                                Choisissez {{ produit.quantite_par_categorie }} produit{{ 's' if produit.quantite_par_categorie > 1 else '' }}
+                            {% else %}
+                                Choisissez vos produits
+                            {% endif %}
+                        </span>
+                        <span class="accordion-icon">{% if loop.first %}▲{% else %}▼{% endif %}</span>
+                    </button>
+                    <div class="accordion-content{% if loop.first %} open{% endif %}">
+                        <div class="options-grid">
+                            {% if produit.quantite_par_categorie %}
+                            <!-- Sélection multiple pour les quantités -->
+                            {% for option in categorie_data.options %}
+                            <div class="option-card">
+                                <input type="checkbox" id="option-{{ option.id }}" name="{{ categorie_key }}" value="{{ option.nom }}" data-price="{{ option.prix }}" class="category-checkbox">
+                                <label for="option-{{ option.id }}" class="option-label">
+                                    <div class="option-image">
+                                        <img src="{{ option.image }}" alt="{{ option.nom }}">
+                                    </div>
+                                    <div class="option-info">
+                                        <h4>{{ option.nom }}</h4>
+                                        <p>{{ option.marque }}</p>
+                                    </div>
+                                </label>
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <!-- Sélection unique pour les autres catégories -->
+                            {% for option in categorie_data.options %}
+                            <div class="option-card">
+                                <input type="radio" id="option-{{ option.id }}" name="{{ categorie_key }}" value="{{ option.nom }}" data-price="{{ option.prix }}" class="category-radio">
+                                <label for="option-{{ option.id }}" class="option-label">
+                                    <div class="option-image">
+                                        <img src="{{ option.image }}" alt="{{ option.nom }}">
+                                    </div>
+                                    <div class="option-info">
+                                        <h4>{{ option.nom }}</h4>
+                                        <p>{{ option.marque }}</p>
+                                    </div>
+                                </label>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="quantity-section">
+                    <label for="quantite">Quantité:</label>
+                    <input type="number" id="quantite" name="quantite" value="1" min="1" max="10">
+                </div>
+
+                <div class="action-buttons">
+                    <button type="button" class="btn-secondary" onclick="window.history.back()">Retour</button>
+                    <button type="submit" class="btn-primary">Ajouter au panier</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('personalization-form');
+    const currentPriceElement = document.getElementById('current-price');
+    const basePrice = {{ produit.prix }};
+    const quantityInput = document.getElementById('quantite');
+    const quantiteParCategorie = {{ produit.quantite_par_categorie | default(0) }};
+
+    // Fonction pour calculer le prix total (prix fixe)
+    function calculateTotalPrice() {
+        const quantity = parseInt(quantityInput.value) || 1;
+        return basePrice * quantity;
+    }
+
+    // Mettre à jour le prix en temps réel
+    function updatePrice() {
+        const totalPrice = calculateTotalPrice();
+        currentPriceElement.textContent = totalPrice + ' KMF';
+    }
+
+    // Validation des sélections (modifiée pour être moins stricte)
+    function validateSelections() {
+        if (quantiteParCategorie > 0) {
+            // Pour les sélections multiples, vérifier qu'il y a au moins une sélection par catégorie
+            const categories = form.querySelectorAll('.accordion-section');
+            for (const category of categories) {
+                const checkboxes = category.querySelectorAll('input[type="checkbox"]:checked');
+                if (checkboxes.length === 0) {
+                    return false;
+                }
+            }
+        } else {
+            // Validation pour sélections uniques (radio buttons)
+            const categories = form.querySelectorAll('.accordion-section');
+            for (const category of categories) {
+                const radioChecked = category.querySelector('input[type="radio"]:checked');
+                if (!radioChecked) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // Limiter les sélections multiples (modification pour permettre le changement)
+    function limitSelections() {
+        if (quantiteParCategorie > 0) {
+            const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const category = this.name;
+                    const categoryCheckboxes = form.querySelectorAll(`input[name="${category}"]`);
+                    const checkedBoxes = form.querySelectorAll(`input[name="${category}"]:checked`);
+
+                    // Permettre de changer les sélections librement
+                    // Ne pas limiter si on décoche
+                    if (!this.checked) {
+                        return;
+                    }
+
+                    // Si on essaie de cocher et qu'on dépasse la limite, décoche automatiquement l'ancienne sélection
+                    if (checkedBoxes.length > quantiteParCategorie) {
+                        // Décoche toutes les cases de cette catégorie
+                        categoryCheckboxes.forEach(cb => cb.checked = false);
+                        // Recoche seulement celle-ci
+                        this.checked = true;
+                    }
+
+                    // Vérifier si toutes les catégories sont sélectionnées avant de scroller
+                    checkAndScrollToButton();
+                });
+            });
+        } else {
+            // Pour les radio buttons, permettre le changement libre
+            const radioButtons = form.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    // Vérifier si toutes les catégories sont sélectionnées avant de scroller
+                    checkAndScrollToButton();
+                });
+            });
+        }
+    }
+
+    // Variable pour suivre si le scroll a déjà été fait
+    let hasScrolledToButton = false;
+
+    // Fonction pour vérifier si toutes les catégories sont sélectionnées et scroller si oui
+    function checkAndScrollToButton() {
+        if (hasScrolledToButton) return; // Ne scroll qu'une seule fois
+
+        const allCategoriesComplete = checkIfAllCategoriesComplete();
+        if (allCategoriesComplete) {
+            scrollToAddButton();
+        }
+    }
+
+    // Fonction pour vérifier si toutes les catégories ont le bon nombre de sélections
+    function checkIfAllCategoriesComplete() {
+        if (quantiteParCategorie > 0) {
+            // Pour les sélections multiples, vérifier qu'il y a exactement le bon nombre par catégorie
+            const categories = form.querySelectorAll('.accordion-section');
+            for (const category of categories) {
+                const checkboxes = category.querySelectorAll('input[type="checkbox"]:checked');
+                if (checkboxes.length !== quantiteParCategorie) {
+                    return false;
+                }
+            }
+        } else {
+            // Validation pour sélections uniques (radio buttons)
+            const categories = form.querySelectorAll('.accordion-section');
+            for (const category of categories) {
+                const radioChecked = category.querySelector('input[type="radio"]:checked');
+                if (!radioChecked) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // Fonction pour scroller vers le bouton "Ajouter au panier"
+    function scrollToAddButton() {
+        const addButton = document.querySelector('.btn-primary[type="submit"]');
+        if (addButton) {
+            addButton.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+            hasScrolledToButton = true;
+        }
+    }
+
+    // Gestion de l'accordéon
+    const accordionHeaders = document.querySelectorAll('.accordion-header');
+    accordionHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+            const content = this.nextElementSibling;
+            const icon = this.querySelector('.accordion-icon');
+            
+            // Toggle content visibility
+            content.classList.toggle('open');
+            
+            // Update icon
+            if (content.classList.contains('open')) {
+                icon.textContent = '▲';
+            } else {
+                icon.textContent = '▼';
+            }
+        });
+    });
+
+    // Ouvrir la première section par défaut (pour desktop et mobile)
+    if (accordionHeaders.length > 0) {
+        const firstContent = accordionHeaders[0].nextElementSibling;
+        const firstIcon = accordionHeaders[0].querySelector('.accordion-icon');
+        firstContent.classList.add('open');
+        firstIcon.textContent = '▲';
+        console.log('Premier accordéon ouvert par défaut');
+    }
+    
+    // Initialiser les limitations
+    limitSelections();
+
+    // Gestionnaire de soumission du formulaire
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        console.log('🔵 Début de la soumission du formulaire');
+
+        if (!validateSelections()) {
+            if (quantiteParCategorie > 0) {
+                alert('Veuillez sélectionner au moins un élément dans chaque catégorie.');
+            } else {
+                alert('Veuillez sélectionner une option pour chaque catégorie.');
+            }
+            return;
+        }
+        
+        console.log('✅ Validation réussie');
+
+        const selectedOptions = {};
+        
+        if (quantiteParCategorie > 0) {
+            // Collecter les sélections multiples
+            const categories = form.querySelectorAll('.accordion-section');
+            categories.forEach(category => {
+                const checkbox = category.querySelector('input[type="checkbox"]');
+                if (checkbox) {
+                    const categoryName = checkbox.name;
+                    const selectedCheckboxes = category.querySelectorAll('input[type="checkbox"]:checked');
+                    if (selectedCheckboxes.length > 0) {
+                        selectedOptions[categoryName] = Array.from(selectedCheckboxes).map(cb => cb.value);
+                    }
+                }
+            });
+        } else {
+            // Collecter les sélections uniques
+            const radioButtons = form.querySelectorAll('input[type="radio"]:checked');
+            radioButtons.forEach(radio => {
+                selectedOptions[radio.name] = radio.value;
+            });
+        }
+        
+        console.log('📦 Options sélectionnées:', selectedOptions);
+
+        const quantity = parseInt(quantityInput.value) || 1;
+        const totalPrice = calculateTotalPrice();
+
+        // Créer l'objet produit personnalisé
+        const customizedProduct = {
+            id: 'custom-' + Date.now(),
+            product_id: 'custom-' + Date.now(),
+            nom: '{{ produit.nom }} (Personnalisé)',
+            prix: totalPrice,
+            image: '{{ produit.image }}',
+            quantite: quantity,
+            type: 'personnalise',
+            product_type: 'personnalise',
+            options: selectedOptions,
+            baseProductId: {{ produit.id | tojson }}
+        };
+        
+        console.log('🛒 Produit à ajouter:', customizedProduct);
+
+        try {
+            // Ajouter au panier
+            const success = await panier.ajouter(customizedProduct);
+            
+            console.log('📨 Résultat de l\'ajout:', success);
+            
+            if (success) {
+                // Afficher un message de confirmation
+                afficherMessage('Produit personnalisé ajouté au panier !', 'success');
+
+                // Rediriger vers le panier après un court délai
+                setTimeout(() => {
+                    window.location.href = '{{ url_for("panier") }}';
+                }, 1500);
+            } else {
+                console.error('❌ Échec de l\'ajout au panier');
+                afficherMessage('Erreur lors de l\'ajout au panier. Veuillez réessayer.', 'error');
+            }
+        } catch (error) {
+            console.error('💥 Erreur exception:', error);
+            afficherMessage('Erreur lors de l\'ajout au panier: ' + error.message, 'error');
+        }
+    });
+});
+</script>
+{% endblock %}

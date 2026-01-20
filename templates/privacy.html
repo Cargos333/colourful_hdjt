@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Politique de confidentialité - Colourful HDJT{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 text-white">
+        <div class="container mx-auto px-4 py-16">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-white to-pink-100 bg-clip-text text-transparent">
+                    Politique de confidentialité
+                </h1>
+                <p class="text-xl text-pink-100 max-w-2xl mx-auto">
+                    Votre confidentialité est importante pour nous. Découvrez comment nous protégeons vos données.
+                </p>
+                <p class="text-sm text-pink-200 mt-4">
+                    Dernière mise à jour : {{ current_year }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-pink-100">
+
+                <div class="prose prose-lg max-w-none text-gray-700">
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">1. Collecte des données</h2>
+                    <p class="mb-6">
+                        Nous collectons les informations que vous nous fournissez directement lors de la création de votre compte, de vos commandes, ou de vos interactions avec notre service.
+                    </p>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Données personnelles collectées :</h3>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li>Nom et prénom</li>
+                        <li>Adresse email</li>
+                        <li>Nom d'utilisateur</li>
+                        <li>Numéro de téléphone</li>
+                        <li>Adresse de livraison</li>
+                        <li>Historique des commandes</li>
+                        <li>Préférences de produits</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">2. Utilisation des données</h2>
+                    <p class="mb-6">
+                        Vos données sont utilisées uniquement pour :
+                    </p>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li>Traiter vos commandes et assurer la livraison</li>
+                        <li>Vous contacter concernant vos commandes</li>
+                        <li>Améliorer nos services et produits</li>
+                        <li>Vous envoyer des informations sur nos offres (avec votre consentement)</li>
+                        <li>Assurer la sécurité de votre compte</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">3. Partage des données</h2>
+                    <p class="mb-6">
+                        Nous ne vendons, n'échangeons ni ne louons vos données personnelles à des tiers. Nous pouvons partager vos informations uniquement dans les cas suivants :
+                    </p>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li>Avec des prestataires de services pour la livraison de vos commandes</li>
+                        <li>Lorsque requis par la loi ou pour protéger nos droits</li>
+                        <li>Avec votre consentement explicite</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">4. Sécurité des données</h2>
+                    <p class="mb-6">
+                        Nous mettons en œuvre des mesures de sécurité appropriées pour protéger vos données personnelles contre tout accès non autorisé, altération, divulgation ou destruction.
+                    </p>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Mesures de sécurité :</h3>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li>Chiffrement des données sensibles</li>
+                        <li>Accès limité aux données personnelles</li>
+                        <li>Surveillance régulière des systèmes</li>
+                        <li>Sauvegardes sécurisées</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">5. Cookies et technologies similaires</h2>
+                    <p class="mb-6">
+                        Notre site utilise des cookies pour améliorer votre expérience utilisateur. Les cookies nous permettent de :
+                    </p>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li>Mémoriser vos préférences</li>
+                        <li>Analyser l'utilisation du site</li>
+                        <li>Assurer le bon fonctionnement du panier</li>
+                        <li>Personnaliser votre expérience</li>
+                    </ul>
+
+                    <p class="mb-6">
+                        Vous pouvez contrôler l'utilisation des cookies via les paramètres de votre navigateur.
+                    </p>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">6. Conservation des données</h2>
+                    <p class="mb-6">
+                        Nous conservons vos données personnelles aussi longtemps que nécessaire pour fournir nos services et respecter nos obligations légales. Les données de compte inactif peuvent être supprimées après une période d'inactivité prolongée.
+                    </p>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">7. Vos droits</h2>
+                    <p class="mb-6">
+                        Conformément à la législation sur la protection des données, vous disposez des droits suivants :
+                    </p>
+                    <ul class="list-disc pl-6 mb-6 space-y-2">
+                        <li><strong>Droit d'accès :</strong> Consulter vos données personnelles</li>
+                        <li><strong>Droit de rectification :</strong> Corriger vos données inexactes</li>
+                        <li><strong>Droit à l'effacement :</strong> Supprimer vos données (dans les limites légales)</li>
+                        <li><strong>Droit à la portabilité :</strong> Recevoir vos données dans un format structuré</li>
+                        <li><strong>Droit d'opposition :</strong> Refuser certains traitements de données</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">8. Modifications de la politique</h2>
+                    <p class="mb-6">
+                        Nous pouvons modifier cette politique de confidentialité à tout moment. Les modifications seront publiées sur cette page avec la date de mise à jour.
+                    </p>
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-pink-200 pb-2">9. Contact</h2>
+                    <p class="mb-6">
+                        Pour toute question concernant cette politique de confidentialité ou l'exercice de vos droits :
+                    </p>
+                    <div class="bg-pink-50 p-4 rounded-xl border border-pink-200">
+                        <p class="text-gray-800"><strong>Email :</strong> contact@colourful.ma</p>
+                        <p class="text-gray-800"><strong>Téléphone :</strong> +269 4690041</p>
+                        <p class="text-gray-800"><strong>Adresse :</strong> Moroni, Ambassadeur</p>
+                        <p class="text-gray-800"><strong>Responsable de la protection des données :</strong> Colourful HDJT</p>
+                    </div>
+
+                </div>
+
+                <div class="mt-12 text-center">
+                    <a href="{{ url_for('profile_settings') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200 mr-4">
+                        <i class="fas fa-cog mr-2"></i>
+                        Gérer mes données
+                    </a>
+                    <a href="{{ url_for('register') }}" class="inline-flex items-center px-6 py-3 border-2 border-pink-500 text-pink-600 font-semibold rounded-xl hover:bg-pink-50 transition-all duration-200">
+                        <i class="fas fa-user-plus mr-2"></i>
+                        Créer un compte
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

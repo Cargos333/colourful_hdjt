@@ -17,8 +17,16 @@ from init_db import init_database
 def create_app():
     """Créer et configurer l'application Flask"""
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'votre_cle_secrete_ici_changez_la'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///colourful_hdjt.db'
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'fede9da25c0bbb833ba34d53498250b1')
+    
+    # Utiliser DATABASE_URL si disponible (pour production), sinon SQLite pour développement
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    else:
+        basedir = os.path.abspath(os.path.dirname(__file__))
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'colourful_hdjt.db')
+    
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Initialiser les extensions

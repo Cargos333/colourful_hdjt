@@ -10,7 +10,7 @@ mkdir -p instance
 
 # Initialiser la base de données si nécessaire
 echo "📊 Initialisation de la base de données..."
-python setup_db.py setup
+python setup_db.py setup || echo "⚠️ Erreur lors de l'initialisation de la base de données (peut-être déjà initialisée)"
 
 # Lancer l'application avec Gunicorn
 echo "🌐 Lancement du serveur avec Gunicorn..."

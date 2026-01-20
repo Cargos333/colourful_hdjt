@@ -10,6 +10,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from app import app, db
 from models import *
 import json
+import hashlib
 
 def init_database():
     """Initialise la base de données et la peuple avec les données existantes"""
@@ -107,6 +108,30 @@ def init_database():
 
         db.session.commit()
         print("✓ Produits prédéfinis ajoutés")
+
+        # Créer un compte administrateur par défaut
+        admin_email = 'admin@colourful.com'
+        admin_exists = User.query.filter_by(email=admin_email).first()
+        
+        if not admin_exists:
+            admin_password = 'Admin@123456'  # Mot de passe par défaut - À CHANGER APRÈS LA PREMIÈRE CONNEXION
+            admin_user = User(
+                email=admin_email,
+                username='admin',
+                password_hash=hashlib.sha256(admin_password.encode()).hexdigest(),
+                nom='Admin',
+                prenom='Principal',
+                telephone='',
+                is_admin=True
+            )
+            db.session.add(admin_user)
+            db.session.commit()
+            print("✓ Compte administrateur créé")
+            print(f"   Email: {admin_email}")
+            print(f"   Mot de passe: {admin_password}")
+            print("   ⚠️  IMPORTANT: Changez ce mot de passe après votre première connexion!")
+        else:
+            print("✓ Compte administrateur déjà existant")
 
         print("\n🎉 Base de données initialisée avec succès !")
         print("📊 Statistiques :")

@@ -6,6 +6,17 @@
     .bg-gradient-to-r {
         padding: 2rem 1rem !important;
     }
+
+    /* Ensure proper width on all mobile devices */
+    .max-w-6xl {
+        max-width: 100% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    .max-w-2xl {
+        max-width: 100% !important;
+    }
     
     .container.mx-auto {
         padding-left: 1rem !important;
@@ -111,6 +122,35 @@
         flex-wrap: wrap;
         gap: 0.5rem;
     }
+
+    /* Profile Info Cards */
+    .bg-gradient-to-br {
+        padding: 1rem !important;
+    }
+
+    /* Fix overflow on personal information */
+    .overflow-hidden {
+        overflow-x: hidden !important;
+    }
+
+    /* Ensure text doesn't overflow */
+    .truncate {
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    /* Personal Info Layout */
+    .space-y-4 {
+        width: 100% !important;
+    }
+
+    /* Labels and values */
+    .text-gray-600,
+    .text-gray-800 {
+        font-size: 0.9rem !important;
+        word-break: break-word !important;
+    }
     
     /* Margin Adjustments */
     .mb-8 {
@@ -188,6 +228,36 @@
     }
 }
 
+/* Styles spécifiques iPhone 12 Pro Max et grands mobiles */
+@media (min-width: 390px) and (max-width: 430px) {
+    .container.mx-auto {
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+    }
+
+    .text-5xl {
+        font-size: 2.25rem !important;
+    }
+
+    .text-xl {
+        font-size: 1.05rem !important;
+    }
+
+    .bg-white.rounded-2xl {
+        padding: 1.25rem !important;
+    }
+
+    /* Better spacing for info cards */
+    .grid.gap-4 {
+        gap: 1rem !important;
+    }
+
+    /* Ensure proper wrapping */
+    .flex.items-center {
+        max-width: 100% !important;
+    }
+}
+
 /* Ensure smooth scrolling on mobile */
 html {
     scroll-behavior: smooth;
@@ -196,6 +266,10 @@ html {
 /* Prevent horizontal scroll */
 body {
     overflow-x: hidden;
+}
+
+* {
+    max-width: 100vw;
 }
 
 /* Mobile Menu Animation */

@@ -2,6 +2,10 @@
 
 {% block title %}Paramètres - Colourful HDJT{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile-mobile.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
     <!-- Hero Section -->

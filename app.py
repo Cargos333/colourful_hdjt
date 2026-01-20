@@ -47,6 +47,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialiser SQLAlchemy
 db.init_app(app)
 
+# Créer les tables automatiquement si elles n'existent pas
+with app.app_context():
+    try:
+        db.create_all()
+        print("✅ Tables de base de données vérifiées/créées")
+    except Exception as e:
+        print(f"⚠️ Erreur lors de la création des tables: {e}")
+
 # Ajouter le filtre from_json à Jinja2
 @app.template_filter('from_json')
 def from_json_filter(value):

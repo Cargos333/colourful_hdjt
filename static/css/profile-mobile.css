@@ -1,0 +1,241 @@
+/* Styles responsive spécifiques pour les pages profile */
+
+/* Mobile Menu Improvements */
+@media (max-width: 1024px) {
+    /* Hero Section Mobile */
+    .bg-gradient-to-r {
+        padding: 2rem 1rem !important;
+    }
+    
+    .container.mx-auto {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    
+    /* Hero Title Mobile */
+    .text-5xl {
+        font-size: 2rem !important;
+        line-height: 1.2 !important;
+    }
+    
+    .text-xl {
+        font-size: 1rem !important;
+        line-height: 1.5 !important;
+    }
+    
+    /* Avatar Mobile */
+    .w-32.h-32 {
+        width: 5rem !important;
+        height: 5rem !important;
+    }
+    
+    .text-6xl {
+        font-size: 2.5rem !important;
+    }
+    
+    /* Mobile Menu Button */
+    #mobile-menu-btn {
+        margin-bottom: 1rem;
+    }
+    
+    /* Grid Layout Mobile */
+    .grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+    
+    /* Cards Mobile */
+    .bg-white.rounded-2xl {
+        padding: 1rem !important;
+        margin-bottom: 1rem;
+    }
+    
+    /* Stats Grid Mobile */
+    .grid.grid-cols-2 {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.75rem !important;
+    }
+    
+    /* Padding Adjustments */
+    .py-12 {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+    
+    .py-16 {
+        padding-top: 3rem !important;
+        padding-bottom: 3rem !important;
+    }
+    
+    .px-4 {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    
+    /* Text Sizing */
+    .text-3xl {
+        font-size: 1.5rem !important;
+    }
+    
+    .text-4xl {
+        font-size: 1.75rem !important;
+    }
+    
+    .text-2xl {
+        font-size: 1.25rem !important;
+    }
+    
+    /* Button Full Width on Mobile */
+    .lg\\:hidden button,
+    .lg\\:hidden a {
+        width: 100%;
+    }
+    
+    /* Order Cards Mobile */
+    .space-y-6 {
+        gap: 1rem !important;
+    }
+    
+    /* Form Elements Mobile */
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="password"],
+    select,
+    textarea {
+        font-size: 16px !important; /* Prevent zoom on iOS */
+    }
+    
+    /* Flexbox Adjustments */
+    .flex.items-center.justify-between {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    /* Margin Adjustments */
+    .mb-8 {
+        margin-bottom: 1.5rem !important;
+    }
+    
+    /* Sidebar Hidden on Mobile */
+    .lg\\:block {
+        display: none !important;
+    }
+}
+
+@media (max-width: 640px) {
+    /* Extra Small Mobile Adjustments */
+    .text-5xl {
+        font-size: 1.75rem !important;
+    }
+    
+    .text-4xl {
+        font-size: 1.5rem !important;
+    }
+    
+    .text-3xl {
+        font-size: 1.25rem !important;
+    }
+    
+    .text-2xl {
+        font-size: 1.125rem !important;
+    }
+    
+    .text-xl {
+        font-size: 0.95rem !important;
+    }
+    
+    /* Single Column Stats */
+    .grid.grid-cols-2 {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* Compact Padding */
+    .p-8 {
+        padding: 1rem !important;
+    }
+    
+    .p-6 {
+        padding: 0.875rem !important;
+    }
+    
+    .p-4 {
+        padding: 0.75rem !important;
+    }
+    
+    /* Hero Adjustments */
+    .bg-gradient-to-r {
+        padding: 1.5rem 0.75rem !important;
+    }
+    
+    /* Card Spacing */
+    .space-y-4 > * + * {
+        margin-top: 0.75rem !important;
+    }
+    
+    .space-y-6 > * + * {
+        margin-top: 1rem !important;
+    }
+    
+    /* Avatar Smaller */
+    .w-32.h-32 {
+        width: 4rem !important;
+        height: 4rem !important;
+    }
+    
+    .text-6xl {
+        font-size: 2rem !important;
+    }
+}
+
+/* Ensure smooth scrolling on mobile */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Prevent horizontal scroll */
+body {
+    overflow-x: hidden;
+}
+
+/* Mobile Menu Animation */
+#mobile-menu {
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+#mobile-menu.hidden {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+/* Touch-friendly buttons */
+@media (max-width: 768px) {
+    button,
+    a.btn,
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0.75rem 1.25rem;
+    }
+}
+
+/* Improve readability on small screens */
+@media (max-width: 640px) {
+    body {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    h1 {
+        font-size: 1.75rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    h3 {
+        font-size: 1.25rem;
+    }
+}

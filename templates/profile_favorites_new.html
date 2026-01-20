@@ -23,6 +23,68 @@
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     }
     
+    .info-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #fef5f8 0%, #fef9fb 100%);
+        border: 1px solid rgba(255, 107, 157, 0.1);
+        transition: all 0.2s ease;
+    }
+    
+    .info-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 107, 157, 0.15);
+    }
+    
+    .info-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .info-content label {
+        display: block;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #9ca3af;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+    
+    .info-content p {
+        font-size: 1rem;
+        color: #1f2937;
+        font-weight: 600;
+        margin: 0;
+        word-break: break-word;
+    }
+    
+    .action-card {
+        display: flex;
+        align-items: center;
+        padding: 1.5rem;
+        border-radius: 16px;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .action-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+    
     .nav-link-profile {
         display: flex;
         align-items: center;
@@ -62,22 +124,37 @@
         background: rgba(255, 255, 255, 0.2);
     }
     
-    .product-card {
-        background: white;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        border-radius: 999px;
+        color: #065f46;
+        font-weight: 600;
+        font-size: 0.875rem;
     }
     
-    .product-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
     }
     
     @media (max-width: 768px) {
         .profile-container { padding: 1rem 0; }
         .profile-card { padding: 1.25rem; }
+        .info-item { padding: 0.875rem; }
+        .info-icon { width: 44px; height: 44px; font-size: 1.25rem; }
+        .info-content p { font-size: 0.95rem; }
     }
 </style>
 {% endblock %}
@@ -89,7 +166,7 @@
         <div class="profile-card" style="margin-bottom: 2rem;">
             <div style="display: flex; align-items: center; justify-between; flex-wrap: wrap; gap: 1rem;">
                 <div style="display: flex; align-items: center;">
-                    <div style="width: 64px; height: 64px; border-radius: 16px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-center; color: white; font-size: 2rem; font-weight: bold; margin-right: 1rem; flex-shrink: 0;">
+                    <div style="width: 64px; height: 64px; border-radius: 16px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold; margin-right: 1rem; flex-shrink: 0;">
                         {{ session.user_prenom[0] }}{{ session.user_nom[0] }}
                     </div>
                     <div>
@@ -112,7 +189,7 @@
                 <div class="profile-card" style="position: sticky; top: 100px;">
                     <h3 style="font-size: 0.875rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;">Navigation</h3>
                     <nav>
-                        <a href="{{ url_for('profile') }}" class="nav-link-profile">
+                        <a href="{{ url_for('profile') }}" class="nav-link-profile active">
                             <div class="nav-icon"><i class="fas fa-user"></i></div>
                             <span style="font-weight: 600;">Mon profil</span>
                         </a>
@@ -120,7 +197,7 @@
                             <div class="nav-icon"><i class="fas fa-box"></i></div>
                             <span style="font-weight: 600;">Mes commandes</span>
                         </a>
-                        <a href="{{ url_for('profile_favorites') }}" class="nav-link-profile active">
+                        <a href="{{ url_for('profile_favorites') }}" class="nav-link-profile">
                             <div class="nav-icon"><i class="fas fa-heart"></i></div>
                             <span style="font-weight: 600;">Mes favoris</span>
                         </a>
@@ -153,7 +230,7 @@
                 
                 <div id="mobile-menu" class="hidden profile-card" style="margin-top: 1rem;">
                     <nav>
-                        <a href="{{ url_for('profile') }}" class="nav-link-profile">
+                        <a href="{{ url_for('profile') }}" class="nav-link-profile active">
                             <div class="nav-icon"><i class="fas fa-user"></i></div>
                             <span style="font-weight: 600;">Mon profil</span>
                         </a>
@@ -161,7 +238,7 @@
                             <div class="nav-icon"><i class="fas fa-box"></i></div>
                             <span style="font-weight: 600;">Mes commandes</span>
                         </a>
-                        <a href="{{ url_for('profile_favorites') }}" class="nav-link-profile active">
+                        <a href="{{ url_for('profile_favorites') }}" class="nav-link-profile">
                             <div class="nav-icon"><i class="fas fa-heart"></i></div>
                             <span style="font-weight: 600;">Mes favoris</span>
                         </a>
@@ -184,13 +261,83 @@
 
             <!-- Contenu Principal -->
             <div>
-                <!-- Liste des favoris -->
-                <div id="favorites-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem;">
-                    <!-- État de chargement -->
-                    <div id="loading-state" class="profile-card" style="grid-column: 1/-1; text-align: center; padding: 3rem 1.5rem;">
-                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
-                        <p style="color: #6b7280; font-weight: 500;">Chargement des favoris...</p>
+                <!-- Informations Personnelles -->
+                <div class="profile-card" style="margin-bottom: 2rem;">
+                    <div style="display: flex; align-items: center; justify-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 700; color: #1f2937;">
+                            <i class="fas fa-user-circle" style="color: var(--primary-color); margin-right: 0.5rem;"></i>
+                            Informations personnelles
+                        </h2>
+                        <a href="{{ url_for('profile_settings') }}" class="btn btn-primary" style="padding: 0.625rem 1.25rem; font-size: 0.875rem;">
+                            <i class="fas fa-edit" style="margin-right: 0.5rem;"></i>
+                            Modifier
+                        </a>
                     </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                        <div class="info-item">
+                            <div class="info-icon"><i class="fas fa-user"></i></div>
+                            <div class="info-content">
+                                <label>Prénom</label>
+                                <p>{{ session.user_prenom }}</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon"><i class="fas fa-id-card"></i></div>
+                            <div class="info-content">
+                                <label>Nom</label>
+                                <p>{{ session.user_nom }}</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                            <div class="info-content">
+                                <label>Email</label>
+                                <p style="font-size: 0.95rem;">{{ session.user_email }}</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon"><i class="fas fa-at"></i></div>
+                            <div class="info-content">
+                                <label>Nom d'utilisateur</label>
+                                <p>{{ session.user_username or 'Non défini' }}</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon"><i class="fas fa-phone"></i></div>
+                            <div class="info-content">
+                                <label>Téléphone</label>
+                                <p>{{ session.user_telephone or '+269 XXX XX XX' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions Rapides -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                    <a href="{{ url_for('produits') }}" class="action-card" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));">
+                        <div style="width: 56px; height: 56px; background: rgba(255, 255, 255, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-size: 1.75rem; flex-shrink: 0;">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 0.25rem;">Continuer mes achats</h3>
+                            <p style="opacity: 0.9; font-size: 0.875rem;">Découvrez nos produits beauté</p>
+                        </div>
+                    </a>
+
+                    <a href="{{ url_for('creer_contenant') }}" class="action-card" style="background: linear-gradient(135deg, #8b5cf6, #6366f1);">
+                        <div style="width: 56px; height: 56px; background: rgba(255, 255, 255, 0.2); border-radius: 12px; display: flex; align-items: center; justify-center; margin-right: 1rem; font-size: 1.75rem; flex-shrink: 0;">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 0.25rem;">Créer un contenant</h3>
+                            <p style="opacity: 0.9; font-size: 0.875rem;">Personnalisez votre beauté</p>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -206,12 +353,6 @@
 </style>
 
 <script>
-// Charger les favoris au chargement de la page
-document.addEventListener('DOMContentLoaded', async function() {
-    await syncLocalStorageFavorites();
-    loadFavorites();
-});
-
 const mobileMenuBtn = document.getElementById('mobile-menu-btn');
 const mobileMenu = document.getElementById('mobile-menu');
 const menuIcon = document.getElementById('menu-icon');
@@ -229,185 +370,6 @@ if (mobileMenuBtn) {
             menuIcon.style.transform = 'rotate(0deg)';
         }
     });
-}
-
-async function syncLocalStorageFavorites() {
-    const localFavorites = JSON.parse(localStorage.getItem('favoris') || '[]');
-    if (localFavorites.length > 0) {
-        try {
-            const response = await fetch('/api/favorites/sync', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ favorites: localFavorites.map(id => ({ product_id: id })) })
-            });
-            
-            if (response.ok) {
-                localStorage.removeItem('favoris');
-                console.log('Favoris synchronisés depuis localStorage');
-            }
-        } catch (error) {
-            console.error('Erreur lors de la synchronisation:', error);
-        }
-    }
-}
-
-async function loadFavorites() {
-    try {
-        const response = await fetch('/api/favorites', {
-            credentials: 'include'
-        });
-        const favorites = await response.json();
-
-        // Cacher l'état de chargement
-        const loadingState = document.getElementById('loading-state');
-        if (loadingState) loadingState.style.display = 'none';
-
-        if (!response.ok) {
-            console.error('Erreur lors du chargement des favoris:', favorites.error);
-            displayEmptyState();
-            return;
-        }
-
-        if (favorites.length === 0) {
-            displayEmptyState();
-            return;
-        }
-
-        // Récupérer les détails des produits
-        const favoriteProducts = [];
-        for (const fav of favorites) {
-            try {
-                const response = await fetch(`/api/product/${fav.product_id}`);
-                if (response.ok) {
-                    const product = await response.json();
-                    favoriteProducts.push({
-                        ...product,
-                        favorite_id: fav.id,
-                        added_at: fav.added_at
-                    });
-                }
-            } catch (error) {
-                console.error(`Erreur lors du chargement du produit ${fav.product_id}:`, error);
-            }
-        }
-
-        displayFavorites(favoriteProducts);
-
-    } catch (error) {
-        console.error('Erreur lors du chargement des favoris:', error);
-        displayEmptyState();
-    }
-}
-
-function displayFavorites(products) {
-    const container = document.getElementById('favorites-container');
-    if (!container) return;
-
-    if (products.length === 0) {
-        displayEmptyState();
-        return;
-    }
-
-    let html = '';
-    products.forEach(product => {
-        const imageUrl = product.image || '/static/images/placeholder.jpg';
-        const price = product.prix || product.price || 0;
-
-        html += `
-            <div class="product-card">
-                <div style="position: relative;">
-                    <img src="${imageUrl}" alt="${product.nom}" style="width: 100%; height: 200px; object-fit: cover;">
-                    <button onclick="removeFromFavorites('${product.id}')"
-                            style="position: absolute; top: 0.75rem; right: 0.75rem; width: 36px; height: 36px; background: white; border: none; border-radius: 50%; display: flex; align-items: center; justify-center; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); transition: all 0.2s;">
-                        <i class="fas fa-times" style="color: #dc2626;"></i>
-                    </button>
-                </div>
-
-                <div style="padding: 1.25rem;">
-                    <h3 style="font-size: 1.125rem; font-weight: 700; color: #1f2937; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${product.nom}</h3>
-                    <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">${product.description || 'Description non disponible'}</p>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);">${price} KMF</div>
-                        <a href="/produit/${product.id}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
-                            Voir détails
-                        </a>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-
-    container.innerHTML = html;
-}
-
-function displayEmptyState() {
-    const container = document.getElementById('favorites-container');
-    if (!container) return;
-
-    container.innerHTML = `
-        <div class="profile-card" style="grid-column: 1/-1; text-align: center; padding: 3rem 1.5rem;">
-            <div style="width: 80px; height: 80px; margin: 0 auto 1.5rem; border-radius: 50%; background: linear-gradient(135deg, #fef5f8 0%, #fef9fb 100%); display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-heart" style="font-size: 2rem; color: var(--primary-color);"></i>
-            </div>
-            <h3 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-bottom: 0.75rem;">Aucun favori enregistré</h3>
-            <p style="color: #6b7280; margin-bottom: 1.5rem;">Marquez vos produits préférés pour les retrouver facilement.</p>
-            <a href="{{ url_for('produits') }}" class="btn btn-primary">
-                <i class="fas fa-shopping-bag" style="margin-right: 0.5rem;"></i>
-                Découvrir les produits
-            </a>
-        </div>
-    `;
-}
-
-async function removeFromFavorites(productId) {
-    try {
-        const response = await fetch('/api/favorites', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({ product_id: productId })
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            loadFavorites();
-            showNotification('Produit retiré des favoris', 'success');
-        } else {
-            showNotification(result.error || 'Erreur lors de la suppression', 'error');
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
-        showNotification('Erreur réseau', 'error');
-    }
-}
-
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 1rem;
-        right: 1rem;
-        padding: 1rem 1.5rem;
-        border-radius: 12px;
-        color: white;
-        font-weight: 600;
-        z-index: 10000;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
-    `;
-    notification.textContent = message;
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
 }
 </script>
 {% endblock %}

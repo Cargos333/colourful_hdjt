@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+  <defs>
+    <linearGradient id="cartonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B4513;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A0522D;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="300" height="300" fill="url(#cartonGrad)"/>
+  <g transform="translate(150,150)">
+    <!-- Boîte en carton -->
+    <rect x="-60" y="-40" width="120" height="80" fill="none" stroke="#654321" stroke-width="3"/>
+    <rect x="-55" y="-35" width="110" height="70" fill="#8B4513"/>
+    <!-- Lignes de pliage -->
+    <line x1="-55" y1="-5" x2="55" y2="-5" stroke="#654321" stroke-width="1"/>
+    <line x1="-55" y1="25" x2="55" y2="25" stroke="#654321" stroke-width="1"/>
+    <!-- Poignée -->
+    <ellipse cx="0" cy="-45" rx="15" ry="8" fill="none" stroke="#654321" stroke-width="2"/>
+  </g>
+  <text x="50%" y="85%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#654321" font-weight="bold">
+    Carton
+  </text>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+  <defs>
+    <linearGradient id="plasticGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="300" height="300" fill="url(#plasticGrad)"/>
+  <g transform="translate(150,150)">
+    <!-- Sac plastique -->
+    <path d="M-50,-60 L50,-60 L45,50 L-45,50 Z" fill="rgba(255,255,255,0.3)" stroke="#FFA500" stroke-width="2"/>
+    <!-- Ouverture du sac -->
+    <line x1="-45" y1="-60" x2="45" y2="-60" stroke="#FFA500" stroke-width="3"/>
+    <!-- Poignée -->
+    <ellipse cx="-20" cy="-65" rx="8" ry="4" fill="none" stroke="#FFA500" stroke-width="2"/>
+    <ellipse cx="20" cy="-65" rx="8" ry="4" fill="none" stroke="#FFA500" stroke-width="2"/>
+    <!-- Lignes de soudure -->
+    <line x1="-45" y1="-40" x2="45" y2="-40" stroke="#FFA500" stroke-width="1" opacity="0.5"/>
+    <line x1="-45" y1="-20" x2="45" y2="-20" stroke="#FFA500" stroke-width="1" opacity="0.5"/>
+  </g>
+  <text x="50%" y="85%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#FFA500" font-weight="bold">
+    Sac Plastique
+  </text>
+</svg>

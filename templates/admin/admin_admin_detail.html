@@ -1,0 +1,260 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Détails Administrateur - {{ user.prenom }} {{ user.nom }}{% endblock %}
+
+{% block page_title %}Détails Administrateur{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('admin_admins') if user.is_admin else url_for('admin_users') }}" class="text-gray-500 hover:text-gray-700 transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                        <span class="text-gray-600 font-medium text-lg">{{ user.prenom[0] if user.prenom else user.email[0].upper() }}</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-semibold text-gray-900">{{ user.prenom }} {{ user.nom }}</h1>
+                        <p class="text-gray-500">{{ user.email }}</p>
+                    </div>
+                    {% if user.is_admin %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        <i class="fas fa-crown mr-1"></i>Administrateur
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="{{ url_for('admin_admin_edit', admin_id=user.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-edit mr-2"></i>Modifier
+                </a>
+                {% if user.id != session.user_id %}
+                <form method="POST" action="{{ url_for('admin_admin_toggle_admin', admin_id=user.id) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir changer le statut admin de cet utilisateur ?')">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 transition-colors">
+                        <i class="fas fa-{{ 'user-times' if user.is_admin else 'user-plus' }} mr-2"></i>
+                        {{ 'Retirer admin' if user.is_admin else 'Donner admin' }}
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations principales -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Profil et informations -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Informations personnelles -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Informations personnelles</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Prénom</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.prenom or 'Non spécifié' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Nom</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.nom or 'Non spécifié' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Email</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.email }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Téléphone</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.telephone or 'Non spécifié' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Nom d'utilisateur</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.username or 'Non spécifié' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Date d'inscription</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.created_at.strftime('%d/%m/%Y') }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Statistiques d'activité -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Activité</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900">{{ total_orders }}</div>
+                            <div class="text-sm text-gray-500">Commandes</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900">{{ total_cart_items }}</div>
+                            <div class="text-sm text-gray-500">Articles dans le panier</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900">{{ total_favorites }}</div>
+                            <div class="text-sm text-gray-500">Favoris</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900">{{ total_addresses }}</div>
+                            <div class="text-sm text-gray-500">Adresses</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dernières commandes -->
+            {% if user.orders %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h3 class="text-lg font-medium text-gray-900">Dernières commandes</h3>
+                    <a href="#" class="text-sm text-blue-600 hover:text-blue-500">Voir tout</a>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    {% for order in user.orders[:3] %}
+                    <div class="px-6 py-4 flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">Commande #{{ order.id }}</div>
+                            <div class="text-sm text-gray-500">{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium text-gray-900">{{ "%.2f"|format(order.total_price) }} KMF</div>
+                            <div class="text-sm text-gray-500">{{ order.status }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Produits favoris -->
+            {% if user.favorites %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h3 class="text-lg font-medium text-gray-900">Produits favoris</h3>
+                    <a href="#" class="text-sm text-blue-600 hover:text-blue-500">Voir tout</a>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    {% for favorite in favorites_data[:3] %}
+                    <div class="px-6 py-4 flex items-center">
+                        <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-image text-gray-400"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-900">
+                                {{ favorite.product_data.get('name', 'Produit ' + favorite.product_id) }}
+                            </div>
+                            <div class="text-sm text-gray-500">Ajouté le {{ favorite.added_at.strftime('%d/%m/%Y') }}</div>
+                        </div>
+                        <i class="fas fa-heart text-red-400"></i>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Actions et informations système -->
+        <div class="space-y-6">
+            <!-- Actions rapides -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Actions</h3>
+                </div>
+                <div class="px-6 py-4 space-y-3">
+                    <a href="mailto:{{ user.email }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
+                        <i class="fas fa-envelope mr-3 text-blue-500"></i>
+                        Envoyer un email
+                    </a>
+                    {% if user.telephone %}
+                    <a href="tel:{{ user.telephone }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
+                        <i class="fas fa-phone mr-3 text-green-500"></i>
+                        Appeler
+                    </a>
+                    {% endif %}
+                    <button onclick="copyToClipboard('{{ user.email }}')" class="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
+                        <i class="fas fa-copy mr-3 text-purple-500"></i>
+                        Copier l'email
+                    </button>
+                </div>
+            </div>
+
+            <!-- Informations système -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Informations système</h3>
+                </div>
+                <div class="px-6 py-4 space-y-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">ID Utilisateur</dt>
+                        <dd class="mt-1 text-sm text-gray-900 font-mono">#{{ user.id }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Dernière modification</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ user.updated_at.strftime('%d/%m/%Y %H:%M') }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Membre depuis</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            {% set days_since = (current_date - user.created_at.date()).days %}
+                            {{ days_since }} jour{{ 's' if days_since > 1 else '' }}
+                        </dd>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone de danger -->
+            {% if user.id != session.user_id %}
+            <div class="bg-white rounded-lg shadow-sm border border-red-200">
+                <div class="px-6 py-4 border-b border-red-200">
+                    <h3 class="text-lg font-medium text-red-900">Zone de danger</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <div class="mb-4">
+                        <p class="text-sm text-red-700">
+                            La suppression de cet utilisateur est définitive et entraînera la perte de toutes ses données.
+                        </p>
+                    </div>
+                    <form method="POST" action="{{ url_for('admin_admin_delete', admin_id=user.id) }}" onsubmit="return confirm('Êtes-vous absolument sûr de vouloir supprimer cet administrateur ? Cette action est IRRÉVERSIBLE.')">
+                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors">
+                            <i class="fas fa-trash mr-2"></i>
+                            Supprimer définitivement
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Fonction pour copier dans le presse-papiers
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        showNotification('Email copié dans le presse-papiers !', 'success');
+    }, function(err) {
+        console.error('Erreur lors de la copie:', err);
+        showNotification('Erreur lors de la copie', 'error');
+    });
+}
+
+// Fonction pour afficher des notifications
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white text-sm font-medium z-50 ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    }`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Contenants - Colourful HDJT{% endblock %}
+
+{% block page_title %}Gestion des Contenants{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-archive text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900">Contenants</h1>
+                    <p class="text-sm text-gray-600">Gérer les contenants personnalisés</p>
+                </div>
+            </div>
+            <a href="{{ url_for('admin_container_add') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 transition-colors">
+                <i class="fas fa-plus mr-2"></i>Ajouter un contenant
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="admin-card p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-archive text-purple-600 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Contenants</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ containers.total if containers else 0 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table des contenants -->
+    <div class="admin-card overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">Liste des contenants</h3>
+                <form method="GET" class="flex gap-2">
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Rechercher un contenant..."
+                           class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-md text-sm font-medium hover:bg-purple-700 transition-colors">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-purple-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">Contenant</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">Produits</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">Statut</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">Prix total</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% if containers and containers.items %}
+                    {% for container in containers.items %}
+                    <tr class="hover:bg-purple-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                {% if container.image_url %}
+                                <img class="w-10 h-10 rounded-lg object-cover mr-3" src="{{ container.image_url }}" alt="{{ container.name }}">
+                                {% else %}
+                                <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-archive text-gray-400"></i>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">{{ container.name }}</div>
+                                    <div class="text-sm text-gray-500">{{ container.description or 'Aucune description' }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ container.container_type.name }}</div>
+                            <div class="text-sm text-gray-500">Max: {{ container.max_products }} produits</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ container.products|length }} produit(s)</div>
+                            <div class="text-sm text-gray-500">
+                                {% set total_units = 0 %}
+                                {% for cp in container.products %}
+                                {% set total_units = total_units + cp.quantity %}
+                                {% endfor %}
+                                {{ total_units }} unité(s)
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if container.is_customizable %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-check mr-1"></i>Personnalisable
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    <i class="fas fa-lock mr-1"></i>Non personnalisable
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">
+                                {% set total_price = container.price %}
+                                {% for cp in container.products %}
+                                {% set total_price = total_price + (cp.product.price * cp.quantity) %}
+                                {% endfor %}
+                                {{ "%.2f"|format(total_price) }} KMF
+                            </div>
+                            <div class="text-xs text-gray-500">Contenant: {{ "%.2f"|format(container.price) }} KMF</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex items-center space-x-2">
+                                <a href="{{ url_for('admin_container_detail', container_id=container.id) }}" class="text-indigo-600 hover:text-indigo-900" title="Voir détails">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('admin_container_edit', container_id=container.id) }}" class="text-blue-600 hover:text-blue-900" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('admin_container_delete', container_id=container.id) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce contenant ? Cette action est irréversible.')">
+                                    <button type="submit" class="text-red-600 hover:text-red-900" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            Aucun contenant trouvé
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if containers and containers.pages > 1 %}
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-700">
+                    Affichage de {{ containers.page * containers.per_page - containers.per_page + 1 }} à {{ [containers.page * containers.per_page, containers.total]|min }} sur {{ containers.total }} résultats
+                </div>
+                <div class="flex items-center space-x-2">
+                    {% if containers.has_prev %}
+                    <a href="{{ url_for('admin_containers', page=containers.prev_num, search=search_query) }}" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors">
+                        Précédent
+                    </a>
+                    {% endif %}
+
+                    {% for page_num in containers.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num == containers.page %}
+                            <span class="px-3 py-1 border border-purple-500 rounded-md text-sm font-medium text-purple-600 bg-purple-50">{{ page_num }}</span>
+                            {% else %}
+                            <a href="{{ url_for('admin_containers', page=page_num, search=search_query) }}" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors">{{ page_num }}</a>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if containers.has_next %}
+                    <a href="{{ url_for('admin_containers', page=containers.next_num, search=search_query) }}" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors">
+                        Suivant
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

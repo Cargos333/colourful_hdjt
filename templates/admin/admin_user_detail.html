@@ -1,0 +1,588 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Détails Utilisateur - {{ user.prenom }} {{ user.nom }}{% endblock %}
+
+{% block page_title %}Détails Utilisateur{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('admin_admins') if user.is_admin else url_for('admin_users') }}" class="text-gray-500 hover:text-gray-700 transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                        <span class="text-gray-600 font-medium text-lg">{{ user.prenom[0] if user.prenom else user.email[0].upper() }}</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-semibold text-gray-900">{{ user.prenom }} {{ user.nom }}</h1>
+                        <p class="text-gray-500">{{ user.email }}</p>
+                    </div>
+                    {% if user.is_admin %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        <i class="fas fa-crown mr-1"></i>Administrateur
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="{{ url_for('admin_user_edit', user_id=user.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-edit mr-2"></i>Modifier
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations principales -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Profil et informations -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Informations personnelles -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Informations personnelles</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Prénom</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.prenom or 'Non spécifié' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Nom</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.nom or 'Non spécifié' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Email</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.email }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Téléphone</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.telephone or 'Non spécifié' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Nom d'utilisateur</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.username or 'Non spécifié' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Date d'inscription</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.created_at.strftime('%d/%m/%Y') }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Statistiques d'activité -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Activité</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900">{{ total_orders }}</div>
+                            <div class="text-sm text-gray-500">Commandes</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900">{{ total_cart_items }}</div>
+                            <div class="text-sm text-gray-500">Articles dans le panier</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900">{{ total_favorites }}</div>
+                            <div class="text-sm text-gray-500">Favoris</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900">{{ total_addresses }}</div>
+                            <div class="text-sm text-gray-500">Adresses</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panier actuel -->
+            {% if cart_data %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h3 class="text-lg font-medium text-gray-900">Panier actuel</h3>
+                    <span class="text-sm text-gray-500">{{ cart_data|length }} article{{ cart_data|length > 1 and 's' or '' }}</span>
+                </div>
+                <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                    {% for item in cart_data %}
+                    <div class="px-6 py-4 hover:bg-gray-50">
+                        {% if item.product_type == 'contenant_personnalise' and item.product_data.produits_inclus %}
+                        <!-- Contenant personnalisé avec détails des produits -->
+                        <div class="border border-purple-200 rounded-lg bg-purple-50 p-4">
+                            <div class="flex items-center space-x-4 mb-3">
+                                <div class="flex-shrink-0">
+                                    {% if item.product_data.image %}
+                                        <img class="h-12 w-12 rounded-lg object-cover" src="{{ item.product_data.image }}" alt="{{ item.product_data.nom or 'Contenant' }}">
+                                    {% else %}
+                                        <div class="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center">
+                                            <i class="fas fa-box text-gray-400"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-sm font-medium text-gray-900">{{ item.product_data.nom }}</div>
+                                    <div class="text-sm text-gray-500">{{ item.product_data.description }}</div>
+                                    <div class="text-xs text-purple-600 mt-1">
+                                        <i class="fas fa-magic mr-1"></i>Contenant personnalisé • {{ item.product_data.produits_inclus|length }} produit{{ item.product_data.produits_inclus|length > 1 and 's' or '' }}
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0 text-right">
+                                    <div class="text-sm font-medium text-gray-900">Qté: {{ item.quantity }}</div>
+                                    <div class="text-sm text-gray-500">{{ "%.2f"|format(item.product_data.prix * item.quantity) }} KMF</div>
+                                </div>
+                            </div>
+                            <!-- Liste des produits dans le contenant -->
+                            <div class="ml-16 space-y-2">
+                                <div class="text-xs font-medium text-gray-700 mb-2">Produits inclus :</div>
+                                {% for produit in item.product_data.produits_inclus %}
+                                <div class="flex items-center space-x-3 bg-white rounded-md p-2 border border-gray-200">
+                                    <div class="flex-shrink-0">
+                                        {% if produit.image %}
+                                            <img class="h-8 w-8 rounded object-cover" src="{{ produit.image }}" alt="{{ produit.nom }}">
+                                        {% else %}
+                                            <div class="h-8 w-8 rounded bg-gray-200 flex items-center justify-center">
+                                                <i class="fas fa-image text-gray-400 text-xs"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-xs font-medium text-gray-900">{{ produit.nom }}</div>
+                                        <div class="text-xs text-gray-500">{{ produit.marque }}</div>
+                                    </div>
+                                    <div class="text-xs text-gray-700 font-medium">{{ "%.2f"|format(produit.prix) }} KMF</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <!-- Produit simple -->
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-shrink-0">
+                                {% if item.product_data.image %}
+                                    <img class="h-12 w-12 rounded-lg object-cover" src="{{ item.product_data.image }}" alt="{{ item.product_data.nom or 'Produit' }}">
+                                {% else %}
+                                    <div class="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center">
+                                        <i class="fas fa-image text-gray-400"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {% if item.product_data.nom %}
+                                        {{ item.product_data.nom }}
+                                    {% elif item.product_type == 'custom' %}
+                                        Contenant personnalisé
+                                    {% else %}
+                                        Produit #{{ item.product_id }}
+                                    {% endif %}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {% if item.product_data.description %}
+                                        {{ item.product_data.description|truncate(50) }}
+                                    {% elif item.product_type == 'custom' %}
+                                        Créé le {{ item.added_at.strftime('%d/%m/%Y') }}
+                                    {% endif %}
+                                </div>
+                                <div class="text-xs text-gray-400 mt-1">
+                                    Type: {{ 'Personnalisé' if item.product_type == 'custom' else 'Prédéfini' }}
+                                    {% if item.product_data.prix %}
+                                        • {{ "%.2f"|format(item.product_data.prix) }} KMF
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 text-right">
+                                <div class="text-sm font-medium text-gray-900">Qté: {{ item.quantity }}</div>
+                                {% if item.product_data.prix %}
+                                    <div class="text-sm text-gray-500">{{ "%.2f"|format(item.product_data.prix * item.quantity) }} KMF</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if cart_data %}
+                <div class="px-6 py-3 bg-gray-50 border-t border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-900">Total estimé:</span>
+                        <span class="text-sm font-medium text-gray-900">
+                            {% set total_cart = 0 %}
+                            {% for item in cart_data %}
+                                {% if item.product_data.prix %}
+                                    {% set total_cart = total_cart + (item.product_data.prix * item.quantity) %}
+                                {% endif %}
+                            {% endfor %}
+                            {{ "%.2f"|format(total_cart) }} KMF
+                        </span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% elif total_cart_items > 0 %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Panier actuel</h3>
+                </div>
+                <div class="px-6 py-8 text-center">
+                    <i class="fas fa-shopping-cart text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500">Le panier contient {{ total_cart_items }} article{{ total_cart_items > 1 and 's' or '' }} mais les données ne sont pas disponibles.</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Toutes les commandes -->
+            {% if sorted_orders %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h3 class="text-lg font-medium text-gray-900">Toutes les commandes</h3>
+                    <span class="text-sm text-gray-500">{{ sorted_orders|length }} commande{{ sorted_orders|length > 1 and 's' or '' }}</span>
+                </div>
+                <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                    {% for order in sorted_orders %}
+                    <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50">
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-900">Commande #{{ order.id }}</div>
+                            <div class="text-sm text-gray-500">{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
+                            <div class="text-xs text-gray-400 mt-1">
+                                {% if order.order_items %}
+                                    {{ order.order_items|length }} produit{{ order.order_items|length > 1 and 's' or '' }}
+                                {% else %}
+                                    Produits non disponibles
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="text-right flex items-center space-x-3">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">{{ "%.2f"|format(order.total_price) }} KMF</div>
+                                <div class="text-sm">
+                                    {% if order.status == 'pending' %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            <i class="fas fa-clock mr-1"></i>En attente
+                                        </span>
+                                    {% elif order.status == 'completed' %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <i class="fas fa-check mr-1"></i>Livrée
+                                        </span>
+                                    {% elif order.status == 'cancelled' %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            <i class="fas fa-times mr-1"></i>Annulée
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                            {{ order.status }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="flex flex-col space-y-1">
+                                <button onclick="showOrderDetails({{ order.id }})" class="text-blue-600 hover:text-blue-900 text-xs font-medium" title="Voir les détails rapides">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <a href="{{ url_for('admin_order_detail', order_id=order.id) }}" class="text-indigo-600 hover:text-indigo-900 text-xs font-medium" title="Voir la page complète de la commande">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Commandes</h3>
+                </div>
+                <div class="px-6 py-4 text-center text-gray-500">
+                    <i class="fas fa-shopping-cart text-4xl mb-4"></i>
+                    <p>Aucune commande trouvée pour cet utilisateur.</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Produits favoris -->
+            {% if user.favorites %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h3 class="text-lg font-medium text-gray-900">Produits favoris</h3>
+                    <a href="#" class="text-sm text-blue-600 hover:text-blue-500">Voir tout</a>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    {% for favorite in favorites_data[:3] %}
+                    <div class="px-6 py-4 flex items-center">
+                        <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-image text-gray-400"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-900">
+                                {{ favorite.product_data.get('name', 'Produit ' + favorite.product_id) }}
+                            </div>
+                            <div class="text-sm text-gray-500">Ajouté le {{ favorite.added_at.strftime('%d/%m/%Y') }}</div>
+                        </div>
+                        <i class="fas fa-heart text-red-400"></i>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Actions et informations système -->
+        <div class="space-y-6">
+            <!-- Actions rapides -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Actions</h3>
+                </div>
+                <div class="px-6 py-4 space-y-3">
+                    <a href="mailto:{{ user.email }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
+                        <i class="fas fa-envelope mr-3 text-blue-500"></i>
+                        Envoyer un email
+                    </a>
+                    {% if user.telephone %}
+                    <a href="tel:{{ user.telephone }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
+                        <i class="fas fa-phone mr-3 text-green-500"></i>
+                        Appeler
+                    </a>
+                    {% endif %}
+                    <button onclick="copyToClipboard('{{ user.email }}')" class="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
+                        <i class="fas fa-copy mr-3 text-purple-500"></i>
+                        Copier l'email
+                    </button>
+                </div>
+            </div>
+
+            <!-- Informations système -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Informations système</h3>
+                </div>
+                <div class="px-6 py-4 space-y-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">ID Utilisateur</dt>
+                        <dd class="mt-1 text-sm text-gray-900 font-mono">#{{ user.id }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Dernière modification</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ user.updated_at.strftime('%d/%m/%Y %H:%M') }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Membre depuis</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            {% set days_since = (current_date - user.created_at.date()).days %}
+                            {{ days_since }} jour{{ 's' if days_since > 1 else '' }}
+                        </dd>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone de danger -->
+            <div class="bg-white rounded-lg shadow-sm border border-red-200">
+                <div class="px-6 py-4 border-b border-red-200">
+                    <h3 class="text-lg font-medium text-red-900">Zone de danger</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <div class="mb-4">
+                        <p class="text-sm text-red-700 mb-2">
+                            <strong>Attention :</strong> Cette action est IRRÉVERSIBLE et entraînera la suppression définitive de toutes les données de cet utilisateur.
+                        </p>
+                        <ul class="text-sm text-red-600 list-disc list-inside space-y-1">
+                            <li>Toutes les commandes et leur historique</li>
+                            <li>Tous les favoris enregistrés</li>
+                            <li>Toutes les adresses de livraison</li>
+                            <li>Tous les articles dans le panier</li>
+                            <li>Toutes les sessions mobiles actives</li>
+                        </ul>
+                        {% if user.id == session.user_id %}
+                        <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                            <p class="text-sm text-yellow-800">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                <strong>Attention :</strong> Vous êtes sur le point de supprimer votre propre compte administrateur. Cette action vous déconnectera immédiatement.
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <form method="POST" action="{{ url_for('admin_user_delete', user_id=user.id) }}" onsubmit="return confirm('{% if user.id == session.user_id %}ATTENTION : Vous allez supprimer VOTRE PROPRE COMPTE ADMINISTRATEUR ! Cette action vous déconnectera immédiatement et vous ne pourrez plus accéder au panneau d\'administration. {% endif %}Êtes-vous absolument sûr de vouloir SUPPRIMER DÉFINITIVEMENT cet utilisateur ? Cette action entraînera la perte IRRÉVERSIBLE de TOUTES ses données : commandes, favoris, adresses, panier, etc. Cette action ne peut pas être annulée.')">
+                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors">
+                            <i class="fas fa-trash mr-2"></i>
+                            Supprimer définitivement
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour les détails de commande -->
+<div id="orderDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
+        <div class="flex items-center justify-between p-4 border-b">
+            <h3 class="text-lg font-medium text-gray-900" id="modalTitle">Détails de la commande</h3>
+            <button onclick="closeOrderDetailsModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-4" id="modalContent">
+            <!-- Le contenu sera rempli par JavaScript -->
+        </div>
+    </div>
+</div>
+
+<script>
+// Données des commandes pour la modal
+const ordersData = {
+    {% for order in sorted_orders %}
+    {{ order.id }}: {
+        id: {{ order.id }},
+        created_at: "{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}",
+        total_price: {{ order.total_price }},
+        status: "{{ order.status }}",
+        items: [
+            {% for item in order.order_items %}
+            {
+                id: "{{ item.product_id }}",
+                name: "{{ item.product_name }}",
+                price: {{ item.price }},
+                quantity: {{ item.quantity }},
+                image: "{{ item.product_image or '/static/images/placeholder.jpg' }}",
+                product_data: {{ item.product_data | tojson if item.product_data else 'null' }}
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ]
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+};
+
+// Fonction pour afficher les détails d'une commande
+function showOrderDetails(orderId) {
+    const order = ordersData[orderId];
+    if (!order) return;
+
+    let statusBadge = '';
+    if (order.status === 'pending') {
+        statusBadge = '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><i class="fas fa-clock mr-1"></i>En attente</span>';
+    } else if (order.status === 'completed') {
+        statusBadge = '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"><i class="fas fa-check mr-1"></i>Livrée</span>';
+    } else if (order.status === 'cancelled') {
+        statusBadge = '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><i class="fas fa-times mr-1"></i>Annulée</span>';
+    } else {
+        statusBadge = '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">' + order.status + '</span>';
+    }
+
+    let content = `
+        <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <h4 class="font-medium text-gray-900">Informations générales</h4>
+                    <div class="mt-2 space-y-1 text-sm">
+                        <p><span class="font-medium">ID Commande:</span> #${order.id}</p>
+                        <p><span class="font-medium">Date:</span> ${order.created_at}</p>
+                        <p><span class="font-medium">Statut:</span> ${statusBadge}</p>
+                        <p><span class="font-medium">Total:</span> ${order.total_price.toFixed(2)} KMF</p>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Produits commandés</h4>
+                    <p class="mt-2 text-sm text-gray-600">${order.items.length} produit${order.items.length > 1 ? 's' : ''}</p>
+                </div>
+            </div>
+
+            <div class="border-t pt-4">
+                <h4 class="font-medium text-gray-900 mb-3">Détail des produits</h4>
+                <div class="space-y-3">
+    `;
+
+    if (order.items.length === 0) {
+        content += '<p class="text-gray-500 text-sm">Aucun produit trouvé dans cette commande.</p>';
+    } else {
+        order.items.forEach(item => {
+            let productName = item.name;
+            let additionalInfo = '';
+
+            // Pour les produits personnalisés, essayer d'extraire plus d'informations
+            if (item.product_data && typeof item.product_data === 'object') {
+                const data = item.product_data;
+                
+                // Si c'est un produit personnalisé avec produits_inclus
+                if (data.produits_inclus && Array.isArray(data.produits_inclus)) {
+                    additionalInfo = '<div class="mt-2 text-xs text-gray-600"><strong>Produits inclus:</strong><ul class="list-disc list-inside mt-1">';
+                    data.produits_inclus.forEach(prod => {
+                        additionalInfo += `<li>${prod.nom} (${prod.prix} KMF)</li>`;
+                    });
+                    additionalInfo += '</ul></div>';
+                }
+                
+                // Si c'est un contenant personnalisé
+                if (data.nom && data.nom.includes('personnalisé')) {
+                    productName = data.nom;
+                }
+            }
+
+            content += `
+                <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                        ${item.image ? `<img src="${item.image}" alt="${productName}" class="w-full h-full object-cover">` : '<i class="fas fa-image text-gray-400"></i>'}
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-900">${productName}</div>
+                        <div class="text-sm text-gray-600">
+                            Quantité: ${item.quantity} × ${item.price.toFixed(2)} KMF = ${(item.quantity * item.price).toFixed(2)} KMF
+                        </div>
+                        ${additionalInfo}
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    content += `
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('modalTitle').innerHTML = `Détails de la commande #${order.id}`;
+    document.getElementById('modalContent').innerHTML = content;
+    document.getElementById('orderDetailsModal').classList.remove('hidden');
+}
+
+// Fonction pour fermer la modal
+function closeOrderDetailsModal() {
+    document.getElementById('orderDetailsModal').classList.add('hidden');
+}
+
+// Fermer la modal en cliquant en dehors
+document.getElementById('orderDetailsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeOrderDetailsModal();
+    }
+});
+
+// Fonction pour copier dans le presse-papiers
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        showNotification('Email copié dans le presse-papiers !', 'success');
+    }, function(err) {
+        console.error('Erreur lors de la copie:', err);
+        showNotification('Erreur lors de la copie', 'error');
+    });
+}
+
+// Fonction pour afficher des notifications
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white text-sm font-medium z-50 ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    }`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+</script>
+{% endblock %}

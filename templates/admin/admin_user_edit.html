@@ -1,0 +1,121 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Modifier Utilisateur - {{ user.prenom }} {{ user.nom }}{% endblock %}
+
+{% block page_title %}Modifier Utilisateur{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center space-x-3">
+            <a href="{{ url_for('admin_user_detail', user_id=user.id) }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Retour aux détails
+            </a>
+            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                <span class="text-white text-sm font-medium">{{ user.prenom[0] if user.prenom else 'U' }}</span>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-gray-900">{{ user.prenom }} {{ user.nom }}</h1>
+                <p class="text-sm text-gray-600">{{ user.email }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulaire de modification -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-4 py-3 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Informations de l'utilisateur</h2>
+        </div>
+        <form method="POST" class="p-4 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="prenom" class="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
+                    <input type="text" id="prenom" name="prenom" value="{{ user.prenom }}" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                </div>
+
+                <div>
+                    <label for="nom" class="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+                    <input type="text" id="nom" name="nom" value="{{ user.nom }}" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                </div>
+
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Nom d'utilisateur</label>
+                    <input type="text" id="username" name="username" value="{{ user.username }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="telephone" class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                    <input type="tel" id="telephone" name="telephone" value="{{ user.telephone }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                <a href="{{ url_for('admin_user_detail', user_id=user.id) }}" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                    Annuler
+                </a>
+                <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    <i class="fas fa-save mr-2"></i>Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Informations système -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-4 py-3 border-b border-gray-200">
+            <h3 class="text-base font-semibold text-gray-900">Informations système</h3>
+        </div>
+        <div class="p-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                    <dt class="font-medium text-gray-500">ID Utilisateur</dt>
+                    <dd class="mt-1 text-gray-900">#{{ user.id }}</dd>
+                </div>
+                <div>
+                    <dt class="font-medium text-gray-500">Date d'inscription</dt>
+                    <dd class="mt-1 text-gray-900">{{ user.created_at.strftime('%d/%m/%Y à %H:%M') }}</dd>
+                </div>
+                <div>
+                    <dt class="font-medium text-gray-500">Dernière modification</dt>
+                    <dd class="mt-1 text-gray-900">{{ user.updated_at.strftime('%d/%m/%Y à %H:%M') }}</dd>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validation du formulaire
+document.querySelector('form').addEventListener('submit', function(e) {
+    const email = document.getElementById('email').value;
+    const prenom = document.getElementById('prenom').value;
+    const nom = document.getElementById('nom').value;
+
+    if (!email || !prenom || !nom) {
+        e.preventDefault();
+        alert('Veuillez remplir tous les champs obligatoires.');
+        return false;
+    }
+
+    // Validation email basique
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        e.preventDefault();
+        alert('Veuillez entrer une adresse email valide.');
+        return false;
+    }
+});
+</script>
+{% endblock %}

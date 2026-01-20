@@ -1,0 +1,364 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Modifier Contenant - {{ container.name }}{% endblock %}
+
+{% block page_title %}Modifier Contenant{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center space-x-3">
+            <a href="{{ url_for('admin_container_detail', container_id=container.id) }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Retour aux détails
+            </a>
+            <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
+                <i class="fas fa-edit text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-gray-900">{{ container.name }}</h1>
+                <p class="text-sm text-gray-600">Modifier les informations du contenant</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulaire de modification -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-4 py-3 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Informations du contenant</h2>
+        </div>
+        <form method="POST" class="p-4 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nom du contenant *</label>
+                    <input type="text" id="name" name="name" value="{{ container.name }}" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors">
+                </div>
+
+                <div>
+                    <label for="container_type_id" class="block text-sm font-medium text-gray-700 mb-1">Type de contenant *</label>
+                    <select id="container_type_id" name="container_type_id" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors">
+                        <option value="">Sélectionner un type de contenant</option>
+                        {% for container_type in container_types %}
+                        <option value="{{ container_type.id }}" {{ 'selected' if container_type.id == container.container_type_id else '' }}>{{ container_type.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Prix du contenant *</label>
+                    <input type="number" id="price" name="price" step="0.01" min="0" value="{{ container.price }}" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors">
+                </div>
+
+                <div>
+                    <label for="max_products" class="block text-sm font-medium text-gray-700 mb-1">Nombre maximum de produits *</label>
+                    <input type="number" id="max_products" name="max_products" min="1" max="50" value="{{ container.max_products }}" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors">
+                    <p class="text-xs text-gray-500 mt-1">Nombre maximum de produits que ce contenant peut contenir</p>
+                </div>
+
+                <div>
+                    <label for="image_url" class="block text-sm font-medium text-gray-700 mb-1">URL de l'image</label>
+                    <input type="url" id="image_url" name="image_url" value="{{ container.image_url or '' }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                           placeholder="https://exemple.com/image.jpg">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea id="description" name="description" rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors">{{ container.description or '' }}</textarea>
+                </div>
+
+                <div class="md:col-span-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="is_customizable" name="is_customizable" value="1" {{ 'checked' if container.is_customizable else '' }}
+                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                        <label for="is_customizable" class="ml-2 block text-sm text-gray-900">
+                            Ce contenant est personnalisable par les clients
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Si coché, les clients pourront modifier le contenu du contenant lors de la commande</p>
+                </div>
+            </div>
+
+            <!-- Sélection des catégories -->
+            <div class="border-t border-gray-200 pt-4">
+                <h3 class="text-base font-semibold text-gray-900 mb-3">Catégories de produits dans ce contenant</h3>
+                <p class="text-sm text-gray-600 mb-4">Sélectionnez les catégories que ce contenant peut contenir :</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+                    {% for category in categories %}
+                    <div class="flex items-center">
+                        <input type="checkbox" id="category_{{ category.id }}" name="categories" value="{{ category.id }}"
+                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                               {% if category.id in selected_categories %}checked{% endif %}>
+                        <label for="category_{{ category.id }}" class="ml-3 block text-sm">
+                            <span class="font-medium text-gray-900">{{ category.name }}</span>
+                            {% if category.description %}
+                            <span class="text-gray-500 block">{{ category.description }}</span>
+                            {% endif %}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Sélection des produits par catégories -->
+            <div class="border-t border-gray-200 pt-4">
+                <h3 class="text-base font-semibold text-gray-900 mb-3">Produits dans ce contenant</h3>
+                <p class="text-sm text-gray-600 mb-4">Sélectionnez les produits pour chaque catégorie choisie :</p>
+
+                <div id="products-container" class="space-y-4">
+                    <!-- Les produits par catégorie seront ajoutés ici dynamiquement -->
+                </div>
+
+                <!-- Message de validation -->
+                <div id="validation-message" class="hidden mt-4">
+                </div>
+            </div>
+
+            <!-- Boutons -->
+            <div class="flex justify-end space-x-3 border-t border-gray-200 pt-4">
+                <a href="{{ url_for('admin_containers') }}" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                    Annuler
+                </a>
+                <button type="submit" class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 transition-colors">
+                    <i class="fas fa-save mr-2"></i>Enregistrer les modifications
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Liste des catégories disponibles
+const availableCategories = [
+    {% for category in categories %}
+    {
+        id: "{{ category.id }}",
+        name: "{{ category.name }}",
+        description: "{{ category.description or '' }}"
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+// Liste des produits disponibles
+const availableProducts = [
+    {% for product in products %}
+    {
+        id: {{ product.id }},
+        name: "{{ product.name }}",
+        price: {{ product.price }},
+        categoriesRaw: "{{ product.categories if product.categories else '[]' }}",
+        categories: {% if product.categories %}{{ product.categories | safe }}{% else %}[]{% endif %}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+// Debug: afficher les produits disponibles
+console.log('Available Products (edit):', availableProducts);
+console.log('Available Categories (edit):', availableCategories);
+
+// Produits actuellement dans le contenant
+const currentContainerProducts = [
+    {% for cp in container.products %}
+    {
+        product_id: {{ cp.product_id }},
+        quantity: {{ cp.quantity }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+// Fonction pour compter le nombre total d'unités de produits sélectionnés
+function getSelectedProductsCount() {
+    let totalUnits = 0;
+    document.querySelectorAll('input[type="checkbox"][name^="selected_products_"]').forEach(checkbox => {
+        if (checkbox.checked) {
+            // Trouver le champ de quantité correspondant
+            const categoryId = checkbox.name.match(/selected_products_(.*)\[\]/)[1];
+            const quantityInput = document.querySelector(`input[name="quantities_${categoryId}[]"][data-product-id="${checkbox.value}"]`) ||
+                                 checkbox.closest('.flex').querySelector('input[type="number"]');
+            const quantity = parseInt(quantityInput?.value) || 1;
+            totalUnits += quantity;
+        }
+    });
+    return totalUnits;
+}
+
+// Fonction pour mettre à jour la validation et les messages
+function updateValidationMessage() {
+    const maxProducts = parseInt(document.getElementById('max_products').value) || 10;
+    const selectedCount = getSelectedProductsCount();
+    const messageDiv = document.getElementById('validation-message');
+
+    if (selectedCount > maxProducts) {
+        messageDiv.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-md p-3">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-red-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-red-800">
+                        Vous avez sélectionné ${selectedCount} unités de produits, mais ce contenant ne peut en contenir que ${maxProducts} maximum.
+                        Veuillez réduire les quantités ou désélectionner des produits.
+                    </p>
+                </div>
+            </div>
+        </div>`;
+        messageDiv.classList.remove('hidden');
+    } else if (selectedCount === maxProducts) {
+        messageDiv.innerHTML = `<div class="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-info-circle text-yellow-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-800">
+                        Vous avez atteint la limite de ${maxProducts} unités pour ce contenant.
+                    </p>
+                </div>
+            </div>
+        </div>`;
+        messageDiv.classList.remove('hidden');
+    } else {
+        messageDiv.classList.add('hidden');
+    }
+}
+
+// Fonction appelée quand un produit est sélectionné/désélectionné
+function updateProductSelection() {
+    // Activer/désactiver les champs de quantité selon l'état des checkboxes
+    document.querySelectorAll('input[type="checkbox"][name^="selected_products_"]').forEach(checkbox => {
+        const quantityInput = checkbox.closest('.flex').querySelector('input[type="number"]');
+        if (quantityInput) {
+            quantityInput.disabled = !checkbox.checked;
+            if (!checkbox.checked) {
+                quantityInput.value = 1; // Reset à 1 quand décoché
+                quantityInput.name = ''; // Désactiver le nom pour qu'il ne soit pas envoyé
+            } else {
+                // Réactiver le nom avec le bon format
+                const categoryId = checkbox.name.match(/selected_products_(.*)\[\]/)[1];
+                quantityInput.name = `quantities_${categoryId}[]`;
+            }
+        }
+    });
+
+    updateValidationMessage();
+}
+
+// Fonction pour mettre à jour l'affichage des produits
+function updateProductsDisplay() {
+    const productsContainer = document.getElementById('products-container');
+    const selectedCategories = Array.from(document.querySelectorAll('input[name="categories"]:checked')).map(cb => cb.value);
+    const maxProducts = parseInt(document.getElementById('max_products').value) || 10;
+
+    // Sauvegarder l'état actuel des checkboxes AVANT de régénérer le HTML
+    const currentSelectionState = {};
+    const currentQuantities = {};
+    document.querySelectorAll('input[type="checkbox"][name^="selected_products_"]').forEach(checkbox => {
+        currentSelectionState[checkbox.value] = checkbox.checked;
+        const quantityInput = checkbox.closest('.flex')?.querySelector('input[type="number"]');
+        if (quantityInput) {
+            currentQuantities[checkbox.value] = quantityInput.value;
+        }
+    });
+
+    if (selectedCategories.length === 0) {
+        productsContainer.innerHTML = '<p class="text-sm text-gray-500">Sélectionnez au moins une catégorie pour voir les produits disponibles</p>';
+        return;
+    }
+
+    let html = '';
+    selectedCategories.forEach(categoryId => {
+        const category = availableCategories.find(cat => cat.id === categoryId);
+        if (!category) return;
+
+        // Filtrer les produits qui appartiennent à cette catégorie
+        const categoryProducts = availableProducts.filter(product => {
+            try {
+                let productCategories = product.categories;
+                
+                // Si c'est une string, parser le JSON
+                if (typeof productCategories === 'string') {
+                    productCategories = JSON.parse(productCategories || '[]');
+                }
+                // Si ce n'est pas un array, convertir en array
+                if (!Array.isArray(productCategories)) {
+                    productCategories = [];
+                }
+                
+                return productCategories.includes(categoryId);
+            } catch (e) {
+                console.error(`Error parsing categories for product ${product.name}:`, e, product.categories);
+                return false;
+            }
+        });
+
+        html += `
+            <div class="border border-gray-200 rounded-md p-4 bg-gray-50">
+                <h4 class="text-sm font-medium text-gray-900 mb-3">${category.name}</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                    ${categoryProducts.map(product => {
+                        // Déterminer l'état de la checkbox: utiliser l'état actuel si disponible, sinon l'état initial
+                        const isChecked = currentSelectionState.hasOwnProperty(product.id.toString()) 
+                            ? currentSelectionState[product.id.toString()]
+                            : currentContainerProducts.some(cp => cp.product_id === product.id);
+                        
+                        // Déterminer la quantité: utiliser la quantité actuelle si disponible, sinon chercher dans les données initiales
+                        let quantityValue = 1;
+                        if (currentQuantities.hasOwnProperty(product.id.toString())) {
+                            quantityValue = currentQuantities[product.id.toString()];
+                        } else {
+                            const existingProduct = currentContainerProducts.find(cp => cp.product_id === product.id);
+                            if (existingProduct) {
+                                quantityValue = existingProduct.quantity;
+                            }
+                        }
+                        
+                        const quantityName = isChecked ? `quantities_${categoryId}[]` : '';
+                        
+                        return `
+                            <div class="flex items-center space-x-2 p-2 border border-gray-200 rounded">
+                                <input type="checkbox" name="selected_products_${categoryId}[]" value="${product.id}"
+                                       class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                                       ${isChecked ? 'checked' : ''}
+                                       onchange="updateProductSelection()">
+                                <label class="flex-1 text-sm text-gray-900">
+                                    ${product.name} (${product.price} KMF)
+                                </label>
+                                <input type="number" name="${quantityName}" value="${quantityValue}" min="1"
+                                       data-product-id="${product.id}"
+                                       class="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                       ${isChecked ? '' : 'disabled'}
+                                       onchange="updateValidationMessage()">
+                            </div>
+                        `;
+                    }).join('')}
+                    ${categoryProducts.length === 0 ? '<p class="text-sm text-gray-500 col-span-full">Aucun produit disponible dans cette catégorie</p>' : ''}
+                </div>
+            </div>
+        `;
+    });
+
+    productsContainer.innerHTML = html;
+    updateValidationMessage();
+}
+
+// Écouter les changements sur les checkboxes de catégories
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('input[name="categories"]').forEach(checkbox => {
+        checkbox.addEventListener('change', updateProductsDisplay);
+    });
+
+    // Écouter les changements sur le champ max_products
+    document.getElementById('max_products').addEventListener('input', function() {
+        updateProductsDisplay();
+    });
+
+    // Mise à jour initiale
+    updateProductsDisplay();
+});
+</script>
+{% endblock %}

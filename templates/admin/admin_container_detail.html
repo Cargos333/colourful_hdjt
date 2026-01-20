@@ -1,0 +1,176 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Détails du Contenant - {{ container.name }}{% endblock %}
+
+{% block page_title %}Détails du Contenant{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="{{ url_for('admin_containers') }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>Retour à la liste
+                </a>
+                <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-box text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900">{{ container.name }}</h1>
+                    <p class="text-sm text-gray-600">Type: {{ container.container_type.name }}</p>
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <a href="{{ url_for('admin_container_edit', container_id=container.id) }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors">
+                    <i class="fas fa-edit mr-2"></i>Modifier
+                </a>
+                <form method="POST" action="{{ url_for('admin_container_delete', container_id=container.id) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce contenant ?')">
+                    <button type="submit" class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors">
+                        <i class="fas fa-trash mr-2"></i>Supprimer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations générales -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Informations principales -->
+        <div class="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-4 py-3 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Informations générales</h2>
+            </div>
+            <div class="p-4 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nom</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ container.name }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Type de contenant</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ container.container_type.name }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Prix du contenant</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ container.price }} KMF</p>
+                        <p class="text-xs text-gray-500">Prix de base du type: {{ container.container_type.base_price }} KMF</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Statut</label>
+                        <p class="mt-1">
+                            {% if container.is_customizable %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-check mr-1"></i>Personnalisable
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    <i class="fas fa-lock mr-1"></i>Non personnalisable
+                                </span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if container.image_url %}
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700">Image</label>
+                        <div class="mt-1">
+                            <img src="{{ container.image_url }}" alt="{{ container.name }}" class="w-32 h-32 object-cover rounded-md">
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if container.description %}
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ container.description }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-4 py-3 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Statistiques</h2>
+            </div>
+            <div class="p-4 space-y-4">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-blue-600">{{ total_quantity }}</div>
+                    <div class="text-sm text-gray-600">Unités totales</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-green-600">{{ container.products|length }}</div>
+                    <div class="text-sm text-gray-600">Types de produits</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-purple-600">{{ "%.2f"|format(total_price) }} KMF</div>
+                    <div class="text-sm text-gray-600">Prix total estimé</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des produits -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-4 py-3 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Produits dans le contenant</h2>
+        </div>
+        <div class="p-4">
+            {% if container.products %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix unitaire</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sous-total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for cp in container.products %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    {% if cp.product.image_url %}
+                                    <img class="h-10 w-10 rounded-full object-cover" src="{{ cp.product.image_url }}" alt="{{ cp.product.name }}">
+                                    {% else %}
+                                    <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                        <i class="fas fa-box text-gray-600"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ cp.product.name }}</div>
+                                        {% if cp.product.description %}
+                                        <div class="text-sm text-gray-500">{{ cp.product.description[:50] }}{% if cp.product.description|length > 50 %}...{% endif %}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ cp.product.price }} KMF</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ cp.quantity }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ "%.2f"|format(cp.product.price * cp.quantity) }} KMF</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="bg-gray-50">
+                        <tr>
+                            <td colspan="3" class="px-6 py-4 text-sm font-medium text-gray-900 text-right">Total estimé :</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ "%.2f"|format(total_price) }} KMF</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <i class="fas fa-box-open text-gray-400 text-4xl mb-4"></i>
+                <p class="text-gray-500">Aucun produit dans ce contenant</p>
+                <a href="{{ url_for('admin_container_edit', container_id=container.id) }}" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Ajouter des produits
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

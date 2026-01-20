@@ -1,0 +1,193 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Types de Contenants - Admin{% endblock %}
+
+{% block page_title %}Types de Contenants{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-boxes text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900">Types de Contenants</h1>
+                    <p class="text-sm text-gray-600">Gérer les types de contenants disponibles</p>
+                </div>
+            </div>
+            <a href="{{ url_for('admin_container_type_add') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 transition-colors">
+                <i class="fas fa-plus mr-2"></i>Ajouter un type
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-boxes text-blue-600"></i>
+                </div>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold text-gray-900">{{ container_types.total }}</div>
+                    <div class="text-sm text-gray-600">Types de contenants</div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-dollar-sign text-green-600"></i>
+                </div>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold text-gray-900">{{ "%.0f"|format(container_types.items|sum(attribute='base_price')) }} KMF</div>
+                    <div class="text-sm text-gray-600">Prix total moyen</div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-layer-group text-orange-600"></i>
+                </div>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold text-gray-900">{{ container_types.items|sum(attribute='max_products')|default(0) }}</div>
+                    <div class="text-sm text-gray-600">Capacité totale max</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des types de contenants -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <!-- Barre de recherche -->
+        <div class="px-4 py-3 border-b border-gray-200">
+            <form method="GET" class="flex space-x-2">
+                <div class="flex-1">
+                    <input type="text" name="search" value="{{ search }}" placeholder="Rechercher par nom..."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                </div>
+                <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">
+                    <i class="fas fa-search"></i>
+                </button>
+                {% if search %}
+                <a href="{{ url_for('admin_container_types') }}" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-times"></i>
+                </a>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            {% if container_types.items %}
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix de base</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Max produits</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégories autorisées</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for container_type in container_types.items %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ container_type.id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ container_type.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ container_type.base_price }} KMF</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ container_type.max_products }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            {% if container_type.allowed_categories %}
+                                {% set categories = container_type.allowed_categories|from_json %}
+                                {% if categories %}
+                                    <div class="flex flex-wrap gap-1">
+                                        {% for category_id in categories %}
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                {{ category_id }}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <span class="text-gray-500">Toutes</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-gray-500">Toutes</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            <a href="{{ url_for('admin_container_type_edit', container_type_id=container_type.id) }}"
+                               class="text-indigo-600 hover:text-indigo-900 transition-colors">
+                                <i class="fas fa-edit"></i> Modifier
+                            </a>
+                            <form method="POST" action="{{ url_for('admin_container_type_delete', container_type_id=container_type.id) }}"
+                                  class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce type de contenant ?')">
+                                <button type="submit" class="text-red-600 hover:text-red-900 transition-colors">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="text-center py-12">
+                <i class="fas fa-boxes text-gray-400 text-4xl mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun type de contenant</h3>
+                <p class="text-gray-500 mb-4">Commencez par créer votre premier type de contenant.</p>
+                <a href="{{ url_for('admin_container_type_add') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Créer le premier type
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Pagination -->
+        {% if container_types.pages > 1 %}
+        <div class="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+                Affichage de {{ container_types.page * container_types.per_page - container_types.per_page + 1 }} à {{ [container_types.page * container_types.per_page, container_types.total]|min }} sur {{ container_types.total }} résultats
+            </div>
+            <div class="flex space-x-1">
+                {% if container_types.has_prev %}
+                <a href="{{ url_for('admin_container_types', page=container_types.prev_num, search=search) }}"
+                   class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                    Précédent
+                </a>
+                {% endif %}
+
+                {% for page_num in container_types.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num == container_types.page %}
+                        <span class="px-3 py-1 border border-purple-500 rounded-md text-sm font-medium text-purple-600 bg-purple-50">
+                            {{ page_num }}
+                        </span>
+                        {% else %}
+                        <a href="{{ url_for('admin_container_types', page=page_num, search=search) }}"
+                           class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                            {{ page_num }}
+                        </a>
+                        {% endif %}
+                    {% else %}
+                        <span class="px-2 py-1 text-gray-500">...</span>
+                    {% endif %}
+                {% endfor %}
+
+                {% if container_types.has_next %}
+                <a href="{{ url_for('admin_container_types', page=container_types.next_num, search=search) }}"
+                   class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                    Suivant
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

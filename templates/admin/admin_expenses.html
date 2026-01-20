@@ -1,0 +1,233 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Dépenses - Colourful HDJT{% endblock %}
+
+{% block page_title %}Gestion des Dépenses{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header avec bouton d'ajout -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Gestion des Dépenses</h2>
+            <p class="text-gray-600 mt-1">{{ expenses.total }} dépense{{ 's' if expenses.total > 1 else '' }} au total</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{{ url_for('admin_finance') }}" class="btn-admin-secondary">
+                <i class="fas fa-chart-line mr-2"></i>Retour à la Finance
+            </a>
+            <a href="{{ url_for('admin_expense_add') }}" class="btn-admin-primary">
+                <i class="fas fa-plus mr-2"></i>Ajouter une dépense
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistiques des dépenses -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Dépenses totales -->
+        <div class="admin-card p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-minus-circle text-red-600 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Dépenses Totales</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ "%.0f"|format(total_expenses) }} KMF</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dépenses du mois -->
+        <div class="admin-card p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-calendar-alt text-orange-600 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Ce Mois</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ "%.0f"|format(monthly_expenses) }} KMF</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nombre de dépenses -->
+        <div class="admin-card p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-receipt text-blue-600 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Nombre de Dépenses</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ expenses.total if expenses else 0 }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Moyenne par dépense -->
+        <div class="admin-card p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-calculator text-purple-600 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Moyenne</p>
+                    <p class="text-2xl font-bold text-gray-900">
+                        {% if expenses.total > 0 %}
+                            {{ "%.0f"|format(total_expenses / expenses.total) }} KMF
+                        {% else %}
+                            0 KMF
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dépenses par catégorie -->
+    {% if expenses_by_category %}
+    <div class="admin-card p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Dépenses par Catégorie</h3>
+        <div class="space-y-3">
+            {% for category, total in expenses_by_category %}
+            <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-900">{{ category.replace('_', ' ').title() }}</span>
+                <span class="text-sm font-bold text-gray-600">{{ "%.0f"|format(total) }} KMF</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filtres et recherche -->
+    <div class="admin-card p-4">
+        <form method="GET" action="{{ url_for('admin_expenses') }}" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Recherche</label>
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Description, notes..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                </div>
+                <div>
+                    <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+                    <select name="category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                        <option value="">Toutes les catégories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}" {{ 'selected' if category_filter == cat else '' }}>{{ cat.replace('_', ' ').title() }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="date_from" class="block text-sm font-medium text-gray-700 mb-1">Date début</label>
+                    <input type="date" name="date_from" value="{{ date_from }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                </div>
+                <div>
+                    <label for="date_to" class="block text-sm font-medium text-gray-700 mb-1">Date fin</label>
+                    <input type="date" name="date_to" value="{{ date_to }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 transition-colors">
+                    <i class="fas fa-search mr-2"></i>Filtrer
+                </button>
+                <a href="{{ url_for('admin_expenses') }}" class="px-4 py-2 bg-gray-600 text-white rounded-md text-sm font-medium hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-times mr-2"></i>Réinitialiser
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table des dépenses -->
+    <div class="admin-card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-red-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Description</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Catégorie</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Montant</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% if expenses and expenses.items %}
+                    {% for expense in expenses.items %}
+                    <tr class="hover:bg-red-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ expense.description }}</div>
+                            {% if expense.notes %}
+                            <div class="text-sm text-gray-500">{{ expense.notes[:50] }}{% if expense.notes|length > 50 %}...{% endif %}</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                {{ expense.category.replace('_', ' ').title() }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ "%.0f"|format(expense.amount) }} KMF</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ expense.date.strftime('%d/%m/%Y') }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex items-center space-x-2">
+                                <a href="{{ url_for('admin_expense_edit', expense_id=expense.id) }}" class="text-blue-600 hover:text-blue-900" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('admin_expense_delete', expense_id=expense.id) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette dépense ?')">
+                                    <button type="submit" class="text-red-600 hover:text-red-900 transition-colors">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+                    {% if not expenses or not expenses.items %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            Aucune dépense trouvée
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if expenses and expenses.pages > 1 %}
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-700">
+                    Affichage de {{ expenses.page * expenses.per_page - expenses.per_page + 1 if expenses.page and expenses.per_page else 1 }} à {{ [expenses.page * expenses.per_page, expenses.total]|min if expenses.page and expenses.per_page and expenses.total else 0 }} sur {{ expenses.total if expenses.total else 0 }} résultats
+                </div>
+                <div class="flex items-center space-x-2">
+                    {% if expenses.has_prev %}
+                    <a href="{{ url_for('admin_expenses', page=expenses.prev_num, search=search_query, category=category_filter, date_from=date_from, date_to=date_to) }}" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors">
+                        Précédent
+                    </a>
+                    {% endif %}
+
+                    {% for page_num in expenses.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num == expenses.page %}
+                            <span class="px-3 py-1 border border-red-500 rounded-md text-sm font-medium text-red-600 bg-red-50">{{ page_num }}</span>
+                            {% else %}
+                            <a href="{{ url_for('admin_expenses', page=page_num, search=search_query, category=category_filter, date_from=date_from, date_to=date_to) }}" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors">{{ page_num }}</a>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if expenses.has_next %}
+                    <a href="{{ url_for('admin_expenses', page=expenses.next_num, search=search_query, category=category_filter, date_from=date_from, date_to=date_to) }}" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors">
+                        Suivant
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

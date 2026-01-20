@@ -1,0 +1,216 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Gestion des Administrateurs - Colourful HDJT{% endblock %}
+
+{% block page_title %}Administrateurs{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header avec bouton d'ajout -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Gestion des Administrateurs</h2>
+            <p class="text-gray-600 mt-1">{{ users.total }} administrateur{{ 's' if users.total > 1 else '' }} au total</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{{ url_for('admin_users') }}" class="btn-admin-secondary">
+                <i class="fas fa-users mr-2"></i>Voir les utilisateurs standards
+            </a>
+            <a href="{{ url_for('admin_admin_add') }}" class="btn-admin-primary">
+                <i class="fas fa-plus mr-2"></i>Ajouter un administrateur
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistiques des administrateurs -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Administrateurs actifs -->
+        <div class="admin-card p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-user-shield text-purple-600 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Administrateurs actifs</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ users.total }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Droits d'administration -->
+        <div class="admin-card p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-key text-green-600 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Droits d'administration</p>
+                    <p class="text-2xl font-bold text-gray-900">100%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accès système -->
+        <div class="admin-card p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-server text-blue-600 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Accès système</p>
+                    <p class="text-2xl font-bold text-gray-900">24/7</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sessions actives -->
+        <div class="admin-card p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-clock text-orange-600 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Sessions actives</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ session.get('is_admin', False) | int }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres et recherche -->
+    <div class="admin-card p-4">
+        <div class="flex flex-wrap gap-4">
+            <div class="flex-1 min-w-64">
+                <form method="GET" action="{{ url_for('admin_admins') }}" class="flex gap-2">
+                    <input type="text" name="search" value="{{ request.args.get('search', '') }}" placeholder="Rechercher par nom, email..." class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    <button type="submit" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
+                        <i class="fas fa-search mr-2"></i>Rechercher
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table des administrateurs -->
+    <div class="admin-card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-purple-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">Administrateur</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">Contact</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">Rôle</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">Dernière connexion</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-700 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for user in users.items %}
+                    <tr class="hover:bg-purple-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-white text-sm font-medium">{{ user.prenom[0] if user.prenom else user.email[0].upper() }}</span>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">{{ user.prenom }} {{ user.nom }}</div>
+                                    <div class="text-sm text-gray-500">@{{ user.username if user.username else 'N/A' }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ user.email }}</div>
+                            {% if user.telephone %}
+                            <div class="text-sm text-gray-500">{{ user.telephone }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                <i class="fas fa-crown mr-1"></i>Administrateur
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ user.updated_at.strftime('%d/%m/%Y %H:%M') }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex items-center space-x-2">
+                                <a href="{{ url_for('admin_admin_detail', admin_id=user.id) }}" class="text-indigo-600 hover:text-indigo-900" title="Voir détails">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('admin_admin_edit', admin_id=user.id) }}" class="text-blue-600 hover:text-blue-900" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% if user.id != session.user_id %}
+                                <form method="POST" action="{{ url_for('admin_admin_toggle_admin', admin_id=user.id) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir retirer les droits admin à cet administrateur ?')">
+                                    <button type="submit" class="text-orange-600 hover:text-orange-900 transition-colors">
+                                        <i class="fas fa-user-times"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if users.pages > 1 %}
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-700">
+                    Affichage de {{ users.page * users.per_page - users.per_page + 1 }} à {{ [users.page * users.per_page, users.total]|min }} sur {{ users.total }} résultats
+                </div>
+                <div class="flex items-center space-x-2">
+                    {% if users.has_prev %}
+                    <a href="{{ url_for('admin_admins', page=users.prev_num) }}" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors">
+                        Précédent
+                    </a>
+                    {% endif %}
+
+                    {% for page_num in users.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num == users.page %}
+                                <span class="px-3 py-1 bg-purple-600 text-white rounded-md text-sm font-medium">{{ page_num }}</span>
+                            {% else %}
+                                <a href="{{ url_for('admin_admins', page=page_num) }}" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors">{{ page_num }}</a>
+                            {% endif %}
+                        {% else %}
+                            <span class="px-2 py-1 text-gray-400">...</span>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if users.has_next %}
+                    <a href="{{ url_for('admin_admins', page=users.next_num) }}" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors">
+                        Suivant
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+<script>
+// Fonctionnalité de recherche en temps réel
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('input[placeholder="Rechercher par nom, email..."]');
+
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const name = row.querySelector('td:nth-child(1) .text-sm.font-medium').textContent.toLowerCase();
+            const email = row.querySelector('td:nth-child(2) .text-sm.text-gray-900').textContent.toLowerCase();
+
+            if (name.includes(searchTerm) || email.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Supprimer Catégorie - Colourful HDJT{% endblock %}
+
+{% block page_title %}Supprimer une catégorie{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <!-- Warning Card -->
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-yellow-700">
+                    <strong>Attention :</strong> Cette catégorie contient des produits. Choisissez ce que vous souhaitez faire avec ces produits.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Info -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+        <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Catégorie : {{ category.name }}
+            </h3>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                ID : {{ category.id }}
+            </p>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">
+                        Nombre de produits
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        {{ products_count }}
+                    </dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Products List -->
+    {% if products %}
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+        <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Produits dans cette catégorie
+            </h3>
+        </div>
+        <div class="border-t border-gray-200">
+            <ul class="divide-y divide-gray-200">
+                {% for product in products %}
+                <li class="px-4 py-4 sm:px-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            {% if product.image_url %}
+                            <img class="h-10 w-10 rounded-full" src="{{ product.image_url }}" alt="{{ product.name }}">
+                            {% else %}
+                            <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                <i class="fas fa-image text-gray-400"></i>
+                            </div>
+                            {% endif %}
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ product.name }}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {{ product.brand }} - {{ product.price }} KMF
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Action Form -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Choisir l'action
+            </h3>
+            <p class="mt-1 text-sm text-gray-600">
+                Que souhaitez-vous faire avec les produits de cette catégorie ?
+            </p>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <form method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir procéder ? Cette action est irréversible.')">
+                <div class="space-y-4">
+                    <!-- Option 1: Delete products -->
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="delete_products" name="action" type="radio" value="delete_products" class="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300" required>
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="delete_products" class="font-medium text-gray-700">
+                                Supprimer la catégorie et tous ses produits
+                            </label>
+                            <p class="text-gray-500">
+                                Tous les produits de cette catégorie seront définitivement supprimés.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Option 2: Move products -->
+                    {% if other_categories %}
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="move_products" name="action" type="radio" value="move_products" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="move_products" class="font-medium text-gray-700">
+                                Déplacer les produits vers une autre catégorie
+                            </label>
+                            <p class="text-gray-500 mb-2">
+                                Les produits seront transférés vers la catégorie sélectionnée.
+                            </p>
+                            <select name="target_category" id="target_category" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md" disabled>
+                                <option value="">Sélectionner une catégorie...</option>
+                                {% for cat in other_categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-3">
+                    <a href="{{ url_for('admin_categories') }}"
+                       class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Annuler
+                    </a>
+                    <button type="submit"
+                            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        <i class="fas fa-trash mr-2"></i>
+                        Supprimer la catégorie
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Enable/disable target category select based on radio button
+    document.getElementById('move_products').addEventListener('change', function() {
+        document.getElementById('target_category').disabled = !this.checked;
+    });
+
+    document.getElementById('delete_products').addEventListener('change', function() {
+        document.getElementById('target_category').disabled = true;
+    });
+</script>
+{% endblock %}

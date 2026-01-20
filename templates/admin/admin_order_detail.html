@@ -1,0 +1,353 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Commande #{{ order.id }} - Colourful HDJT{% endblock %}
+
+{% block page_title %}Détails de la Commande #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header avec actions -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="{{ url_for('admin_orders') }}" class="text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-shopping-cart text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900">Commande #{{ order.id }}</h1>
+                    <p class="text-sm text-gray-600">Passée le {{ order.created_at.strftime('%d/%m/%Y à %H:%M') }}</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                {% if order.status == 'pending' %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                        <i class="fas fa-clock mr-2"></i>En cours
+                    </span>
+                {% elif order.status == 'confirmed' %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <i class="fas fa-check mr-2"></i>Confirmée
+                    </span>
+                {% elif order.status == 'shipped' %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                        <i class="fas fa-truck mr-2"></i>Expédiée
+                    </span>
+                {% elif order.status == 'delivered' %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                        <i class="fas fa-box-open mr-2"></i>Terminées
+                    </span>
+                {% elif order.status == 'cancelled' %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                        <i class="fas fa-times mr-2"></i>Annulé
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Informations client -->
+        <div class="lg:col-span-1">
+            <div class="admin-card p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Informations Client</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Nom complet</label>
+                        <p class="text-sm text-gray-900">{{ user.prenom }} {{ user.nom }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Email</label>
+                        <p class="text-sm text-gray-900">{{ user.email }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Téléphone</label>
+                        <p class="text-sm text-gray-900">{{ user.telephone or 'Non spécifié' }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Date d'inscription</label>
+                        <p class="text-sm text-gray-900">{{ user.created_at.strftime('%d/%m/%Y') }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations commande -->
+            <div class="admin-card p-6 mt-4">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Informations Commande</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Type de contenant</label>
+                        <p class="text-sm text-gray-900">{{ order.container_type.name if order.container_type else 'N/A' }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Méthode de paiement</label>
+                        <p class="text-sm text-gray-900">{{ order.payment_method or 'Non spécifié' }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Adresse de livraison</label>
+                        {% if order.delivery_address %}
+                            {% set delivery_addr = order.delivery_address|from_json %}
+                            {% if delivery_addr and (delivery_addr.address_line_1 or delivery_addr.city) %}
+                            <div class="text-sm text-gray-900">
+                                <p>{{ delivery_addr.recipient_name or 'N/A' }}</p>
+                                <p>{{ delivery_addr.address_line_1 or '' }}</p>
+                                {% if delivery_addr.address_line_2 %}
+                                    <p>{{ delivery_addr.address_line_2 }}</p>
+                                {% endif %}
+                                <p>{{ delivery_addr.city or '' }}, {{ delivery_addr.region or '' }} {{ delivery_addr.postal_code or '' }}</p>
+                                <p>{{ delivery_addr.country or 'Comores' }}</p>
+                                {% if delivery_addr.phone %}
+                                    <p class="mt-1"><i class="fas fa-phone mr-1"></i>{{ delivery_addr.phone }}</p>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <p class="text-sm text-gray-900">Non spécifiée</p>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-sm text-gray-900">Non spécifiée</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Dernière mise à jour</label>
+                        <p class="text-sm text-gray-900">{{ order.updated_at.strftime('%d/%m/%Y %H:%M') }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Changer le statut -->
+            {% if order.status not in ['delivered', 'cancelled'] %}
+            <div class="admin-card p-6 mt-4">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Changer le Statut</h3>
+                <form method="POST" action="{{ url_for('admin_order_update_status', order_id=order.id) }}">
+                    <div class="space-y-3">
+                        <div>
+                            <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="pending" {{ 'selected' if order.status == 'pending' else '' }}>En cours</option>
+                                <option value="delivered" {{ 'selected' if order.status == 'delivered' else '' }}>Terminées</option>
+                                <option value="cancelled" {{ 'selected' if order.status == 'cancelled' else '' }}>Annulé</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-save mr-2"></i>Mettre à jour
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% else %}
+            <div class="admin-card p-6 mt-4">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Statut Final</h3>
+                <p class="text-sm text-gray-600">
+                    Cette commande est {{ 'terminée' if order.status == 'delivered' else 'annulée' }} et ne peut plus être modifiée.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Produits commandés -->
+        <div class="lg:col-span-2">
+            <div class="admin-card p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Produits Commandés</h3>
+                
+                {% if order.order_items %}
+                <div class="space-y-4">
+                    {% for item in order.order_items %}
+                    <div class="border border-gray-200 rounded-lg">
+                        <div class="flex items-center space-x-4 p-4">
+                            <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                                {% if item.product_image %}
+                                    <img src="{{ item.product_image }}" alt="{{ item.product_name }}" class="w-full h-full object-cover rounded-lg">
+                                {% else %}
+                                    <i class="fas fa-image text-gray-400 text-xl"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-medium text-gray-900">{{ item.product_name or 'Produit personnalisé' }}</h4>
+                                <p class="text-sm text-gray-500">Quantité: {{ item.quantity }}</p>
+                                {% if item.product_data %}
+                                    {% set product_data = item.product_data|from_json %}
+                                    
+                                    {# Afficher les produits inclus pour les contenants personnalisés #}
+                                    {% if product_data.get('produits_inclus') and product_data.produits_inclus|length > 0 %}
+                                    <div class="mt-2">
+                                        <button onclick="toggleProducts({{ loop.index }})" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                            <i class="fas fa-chevron-down" id="chevron-{{ loop.index }}"></i>
+                                            Voir les produits inclus ({{ product_data.produits_inclus|length }})
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {# Afficher les produits sélectionnés pour les produits personnalisés #}
+                                    {% if product_data.get('produits_selectionnes') and product_data.produits_selectionnes|length > 0 %}
+                                    <div class="mt-2">
+                                        <button onclick="toggleProducts({{ loop.index }})" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                            <i class="fas fa-chevron-down" id="chevron-{{ loop.index }}"></i>
+                                            Voir les produits sélectionnés ({{ product_data.produits_selectionnes|length }})
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if product_data.get('customizations') %}
+                                    <div class="mt-2">
+                                        <p class="text-xs text-gray-600">Personnalisations:</p>
+                                        <ul class="text-xs text-gray-500 ml-4">
+                                            {% for key, value in product_data.customizations.items() %}
+                                            <li>{{ key }}: {{ value }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900">{{ "%.2f"|format(item.price) }} KMF</p>
+                                <p class="text-xs text-gray-500">Total: {{ "%.2f"|format(item.price * item.quantity) }} KMF</p>
+                            </div>
+                        </div>
+                        
+                        {# Section des produits inclus (cachée par défaut) #}
+                        {% if item.product_data %}
+                            {% set product_data = item.product_data|from_json %}
+                            
+                            {# Produits inclus pour contenants personnalisés #}
+                            {% if product_data.get('produits_inclus') and product_data.produits_inclus|length > 0 %}
+                            <div id="products-{{ loop.index }}" class="hidden border-t border-gray-200 bg-gray-50 p-4">
+                                <h5 class="text-xs font-medium text-gray-700 mb-3">Produits inclus dans ce contenant:</h5>
+                                <div class="space-y-2">
+                                    {% for produit in product_data.produits_inclus %}
+                                    <div class="flex items-center space-x-2 p-2 bg-white rounded border border-gray-200">
+                                        <div class="w-10 h-10 bg-gray-100 rounded flex-shrink-0 overflow-hidden">
+                                            {% if produit.get('image') %}
+                                                <img src="{{ produit.image }}" alt="{{ produit.nom }}" class="w-full h-full object-cover">
+                                            {% else %}
+                                                <div class="w-full h-full flex items-center justify-center">
+                                                    <i class="fas fa-box text-gray-400 text-xs"></i>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-xs font-medium text-gray-900 truncate">{{ produit.nom }}</p>
+                                            <p class="text-xs text-gray-500">{{ produit.marque if produit.get('marque') else 'COLOURFUL HDJT' }}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs font-medium text-gray-900">{{ produit.prix|int }} KMF</p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {# Produits sélectionnés pour produits personnalisés #}
+                            {% if product_data.get('produits_selectionnes') and product_data.produits_selectionnes|length > 0 %}
+                            <div id="products-{{ loop.index }}" class="hidden border-t border-gray-200 bg-gray-50 p-4">
+                                <h5 class="text-xs font-medium text-gray-700 mb-3">Produits sélectionnés:</h5>
+                                <div class="space-y-2">
+                                    {% for produit in product_data.produits_selectionnes %}
+                                    <div class="flex items-center space-x-2 p-2 bg-white rounded border border-gray-200">
+                                        <div class="w-10 h-10 bg-gray-100 rounded flex-shrink-0 overflow-hidden">
+                                            {% if produit.get('image') %}
+                                                <img src="{{ produit.image }}" alt="{{ produit.nom }}" class="w-full h-full object-cover">
+                                            {% else %}
+                                                <div class="w-full h-full flex items-center justify-center">
+                                                    <i class="fas fa-box text-gray-400 text-xs"></i>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-xs font-medium text-gray-900 truncate">
+                                                {% if produit.get('produit') and produit.produit.get('nom') %}
+                                                    {{ produit.produit.nom }}
+                                                {% elif produit.get('produit') and produit.produit.get('name') %}
+                                                    {{ produit.produit.name }}
+                                                {% elif produit.get('nom') %}
+                                                    {{ produit.nom }}
+                                                {% elif produit.get('name') %}
+                                                    {{ produit.name }}
+                                                {% else %}
+                                                    Produit sans nom
+                                                {% endif %}
+                                            </p>
+                                            <p class="text-xs text-gray-500">
+                                                {% if produit.get('produit') and produit.produit.get('marque') %}
+                                                    {{ produit.produit.marque }}
+                                                {% elif produit.get('produit') and produit.produit.get('brand') %}
+                                                    {{ produit.produit.brand }}
+                                                {% elif produit.get('categorie') %}
+                                                    Catégorie: {{ produit.categorie|title }}
+                                                {% elif produit.get('marque') %}
+                                                    {{ produit.marque }}
+                                                {% elif produit.get('brand') %}
+                                                    {{ produit.brand }}
+                                                {% else %}
+                                                    COLOURFUL HDJT
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs font-medium text-gray-900">{{ "%.2f"|format(produit.prix) if produit.get('prix') else 'N/A' }}</p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Récapitulatif des prix -->
+                <div class="mt-6 border-t border-gray-200 pt-4">
+                    <h4 class="text-md font-medium text-gray-900 mb-3">Récapitulatif</h4>
+                    <div class="space-y-2">
+                        {% set subtotal = namespace(value=0) %}
+                        {% for item in order.order_items %}
+                            {% if item.price and item.quantity %}
+                                {% set subtotal.value = subtotal.value + (item.price * item.quantity) %}
+                            {% endif %}
+                        {% endfor %}
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Sous-total</span>
+                            <span class="text-sm text-gray-900">{{ "%.2f"|format(subtotal.value) }} KMF</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Frais de livraison</span>
+                            <span class="text-sm text-gray-900">{{ "%.2f"|format(order.total_price - subtotal.value) }} KMF</span>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-200 pt-2">
+                            <span class="text-lg font-medium text-gray-900">Total</span>
+                            <span class="text-lg font-bold text-gray-900">{{ "%.2f"|format(order.total_price) }} KMF</span>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-box-open text-gray-400 text-4xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun produit</h3>
+                    <p class="text-gray-500">Cette commande ne contient aucun produit.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Fonction pour afficher/masquer les produits inclus
+function toggleProducts(index) {
+    const productsDiv = document.getElementById('products-' + index);
+    const chevron = document.getElementById('chevron-' + index);
+    
+    if (productsDiv.classList.contains('hidden')) {
+        productsDiv.classList.remove('hidden');
+        chevron.classList.remove('fa-chevron-down');
+        chevron.classList.add('fa-chevron-up');
+    } else {
+        productsDiv.classList.add('hidden');
+        chevron.classList.remove('fa-chevron-up');
+        chevron.classList.add('fa-chevron-down');
+    }
+}
+</script>
+{% endblock %}

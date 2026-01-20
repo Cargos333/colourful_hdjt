@@ -1,0 +1,107 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Modifier Catégorie - {{ category.name }}{% endblock %}
+
+{% block page_title %}Modifier Catégorie de Produits{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center space-x-3">
+            <a href="{{ url_for('admin_categories') }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Retour à la liste
+            </a>
+            <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+                <i class="fas fa-edit text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-gray-900">{{ category.name }}</h1>
+                <p class="text-sm text-gray-600">Modifier les informations de la catégorie</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations actuelles -->
+    <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+        <div class="flex items-center space-x-2 mb-2">
+            <i class="fas fa-info-circle text-blue-600"></i>
+            <span class="text-sm font-medium text-blue-800">Informations actuelles</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+                <span class="font-medium text-gray-700">ID:</span>
+                <code class="bg-gray-100 px-2 py-1 rounded text-xs">{{ category.id }}</code>
+                <span class="text-xs text-gray-500">(non modifiable)</span>
+            </div>
+            <div>
+                <span class="font-medium text-gray-700">Produits:</span>
+                <span class="text-gray-900">{{ category.predefined_products_count }} produit{{ 's' if category.predefined_products_count != 1 else '' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulaire de modification -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-4 py-3 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Modifier les informations</h2>
+        </div>
+        <form method="POST" class="p-4 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nom de la catégorie *</label>
+                    <input type="text" id="name" name="name" value="{{ category.name }}" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea id="description" name="description" rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">{{ category.description or '' }}</textarea>
+                </div>
+            </div>
+
+            <!-- Boutons -->
+            <div class="flex justify-end space-x-3 border-t border-gray-200 pt-4">
+                <a href="{{ url_for('admin_categories') }}" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                    Annuler
+                </a>
+                <button type="submit" class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors">
+                    <i class="fas fa-save mr-2"></i>Enregistrer les modifications
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Produits dans cette catégorie -->
+    {% if predefined_products %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-4 py-3 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Produits dans cette catégorie ({{ category.predefined_products_count }})</h2>
+        </div>
+        <div class="p-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for product in predefined_products %}
+                <div class="border border-gray-200 rounded-md p-3 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center space-x-3">
+                        {% if product.image_url %}
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-10 h-10 rounded-full object-cover">
+                        {% else %}
+                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                            <i class="fas fa-box text-gray-600 text-sm"></i>
+                        </div>
+                        {% endif %}
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">{{ product.name }}</p>
+                            <p class="text-sm text-gray-500">{{ product.container_type.name if product.container_type else 'N/A' }}</p>
+                            <p class="text-sm font-medium text-green-600">{{ product.price }} KMF</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Supprimer une Dépense - Colourful HDJT{% endblock %}
+
+{% block page_title %}Supprimer une Dépense{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center space-x-3">
+            <a href="{{ url_for('admin_expenses') }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Retour à la liste
+            </a>
+            <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center">
+                <i class="fas fa-trash text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-gray-900">Supprimer une Dépense</h1>
+                <p class="text-sm text-gray-600">Confirmer la suppression de la dépense</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation de suppression -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-4 py-3 border-b border-gray-200 bg-red-50">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-exclamation-triangle text-red-600"></i>
+                <h2 class="text-lg font-semibold text-red-900">Attention : Action irréversible</h2>
+            </div>
+        </div>
+        <div class="p-4">
+            <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
+                <div class="flex">
+                    <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800">
+                            Êtes-vous sûr de vouloir supprimer cette dépense ?
+                        </h3>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <p>Cette action ne peut pas être annulée. La dépense sera définitivement supprimée de la base de données.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Détails de la dépense -->
+            <div class="bg-gray-50 rounded-md p-4">
+                <h3 class="text-sm font-medium text-gray-900 mb-3">Détails de la dépense à supprimer :</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Description:</span>
+                        <p class="text-sm text-gray-900">{{ expense.description }}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Catégorie:</span>
+                        <p class="text-sm text-gray-900">
+                            {% if expense.category == 'achat_materiel' %}Achat Matériel
+                            {% elif expense.category == 'salaire' %}Salaire
+                            {% elif expense.category == 'loyer' %}Loyer
+                            {% elif expense.category == 'transport' %}Transport
+                            {% elif expense.category == 'communication' %}Communication
+                            {% elif expense.category == 'marketing' %}Marketing
+                            {% elif expense.category == 'maintenance' %}Maintenance
+                            {% elif expense.category == 'divers' %}Divers
+                            {% else %}{{ expense.category }}{% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Montant:</span>
+                        <p class="text-sm text-gray-900">{{ "%.2f"|format(expense.amount) }} KMF</p>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Date:</span>
+                        <p class="text-sm text-gray-900">{{ expense.date.strftime('%d/%m/%Y') if expense.date else 'N/A' }}</p>
+                    </div>
+                    {% if expense.notes %}
+                    <div class="md:col-span-2">
+                        <span class="text-sm font-medium text-gray-500">Notes:</span>
+                        <p class="text-sm text-gray-900">{{ expense.notes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
+                <a href="{{ url_for('admin_expenses') }}" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                    Annuler
+                </a>
+                <form method="POST" class="inline-block">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                        <i class="fas fa-trash mr-2"></i>Supprimer définitivement
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Confirmation supplémentaire avant suppression
+document.querySelector('form').addEventListener('submit', function(e) {
+    const confirmed = confirm('Êtes-vous vraiment sûr de vouloir supprimer cette dépense ? Cette action est irréversible.');
+    if (!confirmed) {
+        e.preventDefault();
+        return false;
+    }
+});
+</script>
+{% endblock %}

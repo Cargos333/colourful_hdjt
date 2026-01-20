@@ -1,0 +1,246 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Détails Produit - {{ product.name }}{% endblock %}
+
+{% block page_title %}Détails Produit{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('admin_products') }}" class="text-gray-500 hover:text-gray-700 transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div class="flex items-center space-x-4">
+                    {% if product.image_url %}
+                    <img class="w-16 h-16 rounded-lg object-cover" src="{{ product.image_url }}" alt="{{ product.name }}">
+                    {% else %}
+                    <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-image text-gray-400 text-2xl"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <h1 class="text-2xl font-semibold text-gray-900">{{ product.name }}</h1>
+                        <p class="text-gray-500">{{ product.description or 'Aucune description' }}</p>
+                        <div class="flex items-center space-x-4 mt-2">
+                            {% if product.container_type %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ product.container_type.name }}
+                            </span>
+                            {% endif %}
+                            {% if product.is_internal %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                <i class="fas fa-building mr-1"></i>Interne
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                <i class="fas fa-globe mr-1"></i>Public
+                            </span>
+                            {% endif %}
+                            {% if product.is_customizable %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <i class="fas fa-palette mr-1"></i>Personnalisable
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="{{ url_for('admin_product_edit', product_id=product.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-edit mr-2"></i>Modifier
+                </a>
+                <form method="POST" action="{{ url_for('admin_product_delete', product_id=product.id) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ? Cette action est irréversible.')">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors">
+                        <i class="fas fa-trash mr-2"></i>Supprimer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations principales -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Détails du produit -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Informations générales -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Informations générales</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Nom du produit</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ product.name }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Prix du produit</dt>
+                            <dd class="mt-1 text-sm text-gray-900 font-semibold">{{ "%.2f"|format(product.price) }} KMF</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Type de contenant</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {% if product.container_type %}
+                                    {{ product.container_type.name }}
+                                {% else %}
+                                    <span class="text-gray-500">Aucun (produit interne)</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                        {% if product.container_type %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Prix du contenant</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ "%.2f"|format(product.container_type.base_price) }} KMF</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Capacité max</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ product.container_type.max_products }} produits</dd>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Quantité en stock</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ product.quantity_per_category }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Personnalisable</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {% if product.is_customizable %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-check mr-1"></i>Oui
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    <i class="fas fa-times mr-1"></i>Non
+                                </span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Date de création</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ product.created_at.strftime('%d/%m/%Y') }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Description -->
+            {% if product.description %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Description</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <p class="text-gray-700">{{ product.description }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Catégories -->
+            {% if categories %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Catégories autorisées</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <div class="flex flex-wrap gap-2">
+                        {% for category_id in categories %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                            Catégorie {{ category_id }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Prix total -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Prix total</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Produit :</span>
+                            <span class="text-sm font-medium">{{ "%.2f"|format(product.price) }} KMF</span>
+                        </div>
+                        {% if product.container_type %}
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Contenant :</span>
+                            <span class="text-sm font-medium">{{ "%.2f"|format(product.container_type.base_price) }} KMF</span>
+                        </div>
+                        <hr class="my-2">
+                        <div class="flex justify-between">
+                            <span class="text-lg font-semibold text-gray-900">Total :</span>
+                            <span class="text-lg font-bold text-gray-900">{{ "%.2f"|format(product.price + product.container_type.base_price) }} KMF</span>
+                        </div>
+                        {% else %}
+                        <hr class="my-2">
+                        <div class="flex justify-between">
+                            <span class="text-lg font-semibold text-gray-900">Prix :</span>
+                            <span class="text-lg font-bold text-gray-900">{{ "%.2f"|format(product.price) }} KMF</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image -->
+            {% if product.image_url %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Image du produit</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-48 object-cover rounded-lg">
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Actions rapides -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Actions rapides</h3>
+                </div>
+                <div class="px-6 py-4 space-y-3">
+                    <a href="{{ url_for('admin_product_edit', product_id=product.id) }}" class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-edit mr-2"></i>Modifier le produit
+                    </a>
+                    <a href="{{ url_for('produit_detail', produit_id=product.id) }}" target="_blank" class="w-full inline-flex justify-center items-center px-4 py-2 border border-blue-300 rounded-md text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors">
+                        <i class="fas fa-external-link-alt mr-2"></i>Voir sur le site
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Fonction pour copier dans le presse-papiers
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        showNotification('Copié dans le presse-papiers !', 'success');
+    }, function(err) {
+        console.error('Erreur lors de la copie:', err);
+        showNotification('Erreur lors de la copie', 'error');
+    });
+}
+
+// Fonction pour afficher des notifications
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white text-sm font-medium z-50 ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    }`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,330 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Paramètres - Admin{% endblock %}
+
+{% block page_title %}Paramètres{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Paramètres de l'Application</h1>
+            <p class="text-sm text-gray-600 mt-1">Gérez la configuration et les paramètres système</p>
+        </div>
+    </div>
+
+    <!-- Grid de cartes de paramètres -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Carte Paramètres Généraux -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-cog text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-white">Paramètres Généraux</h3>
+                        <p class="text-blue-100 text-sm">Configuration de base</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+                <form method="POST" action="{{ url_for('admin_update_settings') }}" class="space-y-4">
+                    <input type="hidden" name="section" value="general">
+
+                    <div>
+                        <label for="app_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-tag text-gray-400 mr-2"></i>Nom de l'application
+                        </label>
+                        <input type="text" id="app_name" name="app_name" value="{{ settings.general.app_name }}"
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+
+                    <div>
+                        <label for="app_version" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-code-branch text-gray-400 mr-2"></i>Version
+                        </label>
+                        <input type="text" id="app_version" name="app_version" value="{{ settings.general.app_version }}"
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+
+                    <div>
+                        <label for="default_currency" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-money-bill-wave text-gray-400 mr-2"></i>Devise par défaut
+                        </label>
+                        <select id="default_currency" name="default_currency"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                            <option value="KMF" {% if settings.general.default_currency == 'KMF' %}selected{% endif %}>KMF (Franc Comorien)</option>
+                            <option value="EUR" {% if settings.general.default_currency == 'EUR' %}selected{% endif %}>EUR (Euro)</option>
+                            <option value="USD" {% if settings.general.default_currency == 'USD' %}selected{% endif %}>USD (Dollar)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="timezone" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-globe text-gray-400 mr-2"></i>Fuseau horaire
+                        </label>
+                        <select id="timezone" name="timezone"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                            <option value="Indian/Comoro" {% if settings.general.timezone == 'Indian/Comoro' %}selected{% endif %}>Indian/Comoro</option>
+                            <option value="UTC" {% if settings.general.timezone == 'UTC' %}selected{% endif %}>UTC</option>
+                            <option value="Europe/Paris" {% if settings.general.timezone == 'Europe/Paris' %}selected{% endif %}>Europe/Paris</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        <i class="fas fa-save mr-2"></i>Enregistrer les modifications
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Carte Sécurité -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+            <div class="bg-gradient-to-r from-red-500 to-red-600 p-6">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-white">Sécurité</h3>
+                        <p class="text-red-100 text-sm">Politique de sécurité</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+                <form method="POST" action="{{ url_for('admin_update_settings') }}" class="space-y-4">
+                    <input type="hidden" name="section" value="security">
+
+                    <div>
+                        <label for="session_timeout" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-clock text-gray-400 mr-2"></i>Timeout de session (minutes)
+                        </label>
+                        <input type="number" id="session_timeout" name="session_timeout" value="{{ settings.security.session_timeout }}" min="15" max="480"
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all">
+                    </div>
+
+                    <div>
+                        <label for="max_login_attempts" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock text-gray-400 mr-2"></i>Tentatives de connexion max
+                        </label>
+                        <input type="number" id="max_login_attempts" name="max_login_attempts" value="{{ settings.security.max_login_attempts }}" min="3" max="10"
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            <i class="fas fa-key text-gray-400 mr-2"></i>Politiques de mot de passe
+                        </label>
+                        <div class="space-y-3 bg-gray-50 p-4 rounded-lg">
+                            <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded transition-colors">
+                                <input type="checkbox" id="require_special_chars" name="require_special_chars" {% if settings.security.require_special_chars %}checked{% endif %}
+                                       class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                                <span class="ml-3 text-sm text-gray-700">Exiger des caractères spéciaux</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded transition-colors">
+                                <input type="checkbox" id="require_numbers" name="require_numbers" {% if settings.security.require_numbers %}checked{% endif %}
+                                       class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                                <span class="ml-3 text-sm text-gray-700">Exiger des chiffres</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded transition-colors">
+                                <input type="checkbox" id="require_uppercase" name="require_uppercase" {% if settings.security.require_uppercase %}checked{% endif %}
+                                       class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                                <span class="ml-3 text-sm text-gray-700">Exiger des majuscules</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+                        <i class="fas fa-save mr-2"></i>Enregistrer les modifications
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Carte Prix de Livraison -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+            <div class="bg-gradient-to-r from-green-500 to-green-600 p-6">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-truck text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-white">Prix de Livraison</h3>
+                        <p class="text-green-100 text-sm">Tarifs par région</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+                <form method="POST" action="{{ url_for('admin_update_settings') }}" class="space-y-6">
+                    <input type="hidden" name="section" value="shipping">
+
+                    <!-- Grande Comore -->
+                    <div>
+                        <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-island-tropical text-green-600 mr-2"></i>Grande Comore
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Moroni -->
+                            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-lg border border-emerald-200 hover:shadow-md transition-all">
+                                <label for="shipping_moroni" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-building text-emerald-600 mr-2"></i>Moroni (Capitale)
+                                </label>
+                                <div class="relative">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="shipping_moroni" name="shipping_moroni" value="{{ settings.shipping.moroni|int }}"
+                                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all">
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm font-medium">KMF</span>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-2">Centre-ville et zones urbaines</p>
+                            </div>
+
+                            <!-- Hors Moroni -->
+                            <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200 hover:shadow-md transition-all">
+                                <label for="shipping_hors_moroni" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-map-marked-alt text-green-600 mr-2"></i>Hors Moroni
+                                </label>
+                                <div class="relative">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="shipping_hors_moroni" name="shipping_hors_moroni" value="{{ settings.shipping.hors_moroni|int }}"
+                                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm font-medium">KMF</span>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-2">Mitsamiouli, Foumbouni, etc.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Anjouan -->
+                    <div>
+                        <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-island-tropical text-blue-600 mr-2"></i>Anjouan
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Mutsamudu -->
+                            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-lg border border-indigo-200 hover:shadow-md transition-all">
+                                <label for="shipping_mutsamudu" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-building text-indigo-600 mr-2"></i>Mutsamudu (Chef-lieu)
+                                </label>
+                                <div class="relative">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="shipping_mutsamudu" name="shipping_mutsamudu" value="{{ settings.shipping.mutsamudu|int }}"
+                                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm font-medium">KMF</span>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-2">Centre-ville et zones urbaines</p>
+                            </div>
+
+                            <!-- Hors Mutsamudu -->
+                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200 hover:shadow-md transition-all">
+                                <label for="shipping_hors_mutsamudu" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-map-marked-alt text-blue-600 mr-2"></i>Hors Mutsamudu
+                                </label>
+                                <div class="relative">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="shipping_hors_mutsamudu" name="shipping_hors_mutsamudu" value="{{ settings.shipping.hors_mutsamudu|int }}"
+                                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm font-medium">KMF</span>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-2">Ouani, Domoni, Sima, etc.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mohéli -->
+                    <div>
+                        <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-island-tropical text-purple-600 mr-2"></i>Mohéli
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Fomboni -->
+                            <div class="bg-gradient-to-br from-rose-50 to-rose-100 p-4 rounded-lg border border-rose-200 hover:shadow-md transition-all">
+                                <label for="shipping_fomboni" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-building text-rose-600 mr-2"></i>Fomboni (Chef-lieu)
+                                </label>
+                                <div class="relative">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="shipping_fomboni" name="shipping_fomboni" value="{{ settings.shipping.fomboni|int }}"
+                                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all">
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm font-medium">KMF</span>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-2">Centre-ville et zones urbaines</p>
+                            </div>
+
+                            <!-- Hors Fomboni -->
+                            <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200 hover:shadow-md transition-all">
+                                <label for="shipping_hors_fomboni" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-map-marked-alt text-purple-600 mr-2"></i>Hors Fomboni
+                                </label>
+                                <div class="relative">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="shipping_hors_fomboni" name="shipping_hors_fomboni" value="{{ settings.shipping.hors_fomboni|int }}"
+                                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm font-medium">KMF</span>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-2">Nioumachoua, Hoani, etc.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                        <div class="flex items-start space-x-3">
+                            <i class="fas fa-info-circle text-blue-600 mt-0.5"></i>
+                            <div>
+                                <h4 class="text-sm font-medium text-blue-900 mb-1">Information sur les tarifs</h4>
+                                <p class="text-sm text-blue-700">
+                                    Les prix sont en Francs Comoriens (KMF). Les tarifs varient selon la localisation : chefs-lieux ou autres régions.
+                                    Des frais supplémentaires peuvent s'appliquer selon le poids, la taille et l'urgence de la livraison.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all font-medium shadow-md hover:shadow-lg">
+                        <i class="fas fa-save mr-2"></i>Enregistrer les prix de livraison
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validation des prix de livraison
+    const shippingInputs = document.querySelectorAll('input[name^="shipping_"]');
+    shippingInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            if (this.value < 0) {
+                this.value = 0;
+            }
+            // Format automatique avec séparateur de milliers
+            if (this.value.length > 3) {
+                this.value = parseInt(this.value.replace(/[^\d]/g, '')).toLocaleString('fr-FR');
+            }
+        });
+
+        input.addEventListener('blur', function() {
+            // S'assurer que la valeur est un nombre valide
+            const value = parseInt(this.value.replace(/[^\d]/g, ''));
+            if (isNaN(value) || value < 0) {
+                this.value = 0;
+            } else {
+                this.value = value;
+            }
+        });
+    });
+
+    // Animation des cartes au survol
+    const shippingCards = document.querySelectorAll('.bg-gradient-to-br');
+    shippingCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
+        });
+
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '';
+        });
+    });
+});
+</script>
+{% endblock %}

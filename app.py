@@ -198,18 +198,26 @@ def get_contenants():
         }
     return result
 
-def get_options_produits():
+def get_options_produits(include_internal=False):
     """Récupère toutes les options de produits organisées par catégorie depuis PredefinedProduct"""
     categories = ProductCategory.query.all()
     result = {}
 
     for category in categories:
         # Récupérer les produits prédéfinis qui contiennent cette catégorie
-        all_predefined_products = PredefinedProduct.query.filter(
-            PredefinedProduct.is_internal == False,  # Exclure les produits internes
-            PredefinedProduct.image_url.isnot(None),
-            PredefinedProduct.image_url != ''
-        ).all()
+        if include_internal:
+            # Inclure tous les produits (y compris les internes) pour creer_contenant et personnaliser
+            all_predefined_products = PredefinedProduct.query.filter(
+                PredefinedProduct.image_url.isnot(None),
+                PredefinedProduct.image_url != ''
+            ).all()
+        else:
+            # Exclure les produits internes pour la vente publique
+            all_predefined_products = PredefinedProduct.query.filter(
+                PredefinedProduct.is_internal == False,  # Exclure les produits internes
+                PredefinedProduct.image_url.isnot(None),
+                PredefinedProduct.image_url != ''
+            ).all()
         
         # Filtrer les produits qui appartiennent à cette catégorie
         category_products = []
@@ -323,7 +331,16 @@ def get_global_data():
     """Charge les données globales depuis la base de données"""
     return {
         'CONTENANTS': get_contenants(),
-        'OPTIONS_PRODUITS': get_options_produits(),
+        'OPTIONS_PRODUITS': get_options_produits(include_internal=False),
+        'COMPATIBILITE_CONTENANTS': get_compatibilite_contenants(),
+        'PRODUITS_EXEMPLE': get_produits_exemple()
+    }
+
+def get_global_data_for_customize():
+    """Charge les données globales avec les produits internes pour creer_contenant et personnaliser"""
+    return {
+        'CONTENANTS': get_contenants(),
+        'OPTIONS_PRODUITS': get_options_produits(include_internal=True),
         'COMPATIBILITE_CONTENANTS': get_compatibilite_contenants(),
         'PRODUITS_EXEMPLE': get_produits_exemple()
     }
@@ -537,7 +554,7 @@ def produit_detail(produit_id):
 @app.route('/personnaliser/<produit_id>')
 def personnaliser_produit(produit_id):
     """Page de personnalisation d'un produit"""
-    data = get_global_data()
+    data = get_global_data_for_customize()
 
     # Gérer les nouveaux formats d'ID
     if produit_id.startswith('product_'):
@@ -573,7 +590,7 @@ def personnaliser_produit(produit_id):
                 reference_price = prices_by_category.get(category)
                 
                 # Récupérer tous les produits de cette catégorie depuis la base de données
-                all_products = PredefinedProduct.query.filter_by(is_internal=False).all()
+                all_products = PredefinedProduct.query.all()
                 category_products = []
                 
                 for product in all_products:
@@ -642,7 +659,7 @@ def personnaliser_produit(produit_id):
 @app.route('/creer-contenant', methods=['GET'])
 def creer_contenant():
     """Page de création d'un contenant personnalisé"""
-    data = get_global_data()
+    data = get_global_data_for_customize()
     return render_template('creer_contenant.html',
                          contenants=data['COMPATIBILITE_CONTENANTS'],
                          options_produits=data['OPTIONS_PRODUITS'])
@@ -844,7 +861,7 @@ def api_options():
     """API pour récupérer toutes les options de produits filtrées par container_id"""
     container_type = request.args.get('container_type')
     container_id = request.args.get('container_id')  # Nouveau paramètre
-    data = get_global_data()
+    data = get_global_data_for_customize()  # Utiliser les données avec produits internes
 
     # Si un container_id est spécifié, filtrer par catégories et prix du contenant
     if container_id:
@@ -874,8 +891,8 @@ def api_options():
                 for category in categories:
                     reference_price = prices_by_category.get(category)
                     
-                    # Récupérer tous les produits de cette catégorie
-                    all_products = PredefinedProduct.query.filter_by(is_internal=False).all()
+                    # Récupérer tous les produits de cette catégorie (y compris internes pour personnalisation)
+                    all_products = PredefinedProduct.query.all()
                     category_products = []
                     
                     for product in all_products:
@@ -3495,7 +3512,7 @@ def admin_container_add():
     # Récupérer les types de conteneurs, catégories et produits pour le formulaire
     container_types = ContainerType.query.all()
     categories = ProductCategory.query.all()
-    products = PredefinedProduct.query.filter(PredefinedProduct.is_internal == False).all()
+    products = PredefinedProduct.query.all()  # Inclure tous les produits, y compris les internes
     return render_template('admin/admin_container_add.html', container_types=container_types, categories=categories, products=products)
 
 @app.route('/admin/containers/<int:container_id>')
@@ -3593,7 +3610,7 @@ def admin_container_edit(container_id):
     # Récupérer les types de conteneurs, catégories et produits pour le formulaire
     container_types = ContainerType.query.all()
     categories = ProductCategory.query.all()
-    products = PredefinedProduct.query.filter(PredefinedProduct.is_internal == False).all()
+    products = PredefinedProduct.query.all()  # Inclure tous les produits, y compris les internes
     
     # Récupérer les catégories déjà sélectionnées (depuis les produits du container)
     selected_categories = set()
